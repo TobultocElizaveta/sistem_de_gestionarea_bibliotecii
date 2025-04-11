@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mx-auto mt-10">
+    <h1 class="text-3xl font-semibold mb-4">Detalii Utilizator</h1>
+    <div class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">{{ member.name }}</h2>
+        <p class="text-gray-600">{{ member.address }}</p>
+        <p class="text-gray-600">{{ member.phone }}</p>
+        <p class="text-gray-600">{{ member.email }}</p>
+        <p class="text-gray-600">Datorie restantă: {{ debt }}</p>
+    </div>
+    <div class="bg-white mt-4 p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-2">Tranzacții</h2>
+        {% if trans %}
+            <table class="table-auto w-full">
+                <thead>
+                    <tr>
+                        <th class="border px-4 py-2">ID</th>
+                        <th class="border px-4 py-2">Data Împrumutului</th>
+                        <th class="border px-4 py-2">Data Returnării</th>
+                        <th class="border px-4 py-2">Acțiune</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trans in trans %}
+                        <tr>
+                            <td class="border px-4 py-2"><a class="text-green-500" href="/returnbook/{{trans.id}}">{{ trans.id }}</a></td>
+                            <td class="border px-4 py-2">{{ trans.issue_date.date() }}</td>
+                            <td class="border px-4 py-2">{{ trans.return_date or 'Neînchis încă' }}</td>
+                            <td class="py-2 px-4 border border-gray-200"><a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="/returnbook/{{trans.id}}">Gestionează</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-gray-600">Nu au fost găsite tranzacții pentru acest membru.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
