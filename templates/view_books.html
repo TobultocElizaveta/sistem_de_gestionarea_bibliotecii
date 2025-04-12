@@ -6,10 +6,11 @@
     <div class="container mx-auto py-8">
         <center><h1 class="text-2xl font-semibold mb-4">Lista Cărților</h1>
 
-         <form class="mb-4" method="post">
-            <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" placeholder="Caută după Titlu, Autor sau ISBN">
-            <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
-        </form></center>
+            <form class="mb-4" method="post">
+                <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" style="width: 400px;" placeholder="Caută după Titlu, Autor sau ISBN">
+                <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
+            </form>
+        </center>
         <table class="w-full bg-white border border-gray-200 border-collapse">
           <thead>
               <tr class="bg-gray-100">
@@ -30,9 +31,7 @@
                       <td class="py-2 px-4 border border-gray-200">{{ book.author }}</td>
                       <td class="py-2 px-4 border border-gray-200">{{ book.isbn }}</td>
                       <td class="py-2 px-4 border border-gray-200">{{ book.publisher }}</td>
-                      <td class="py-2 px-4 border border-gray-200">
-                          Total: {{ stock.total_quantity }}, Disponibil: {{ stock.available_quanity }}
-                      </td>
+                      <td class="py-2 px-4 border border-gray-200"> {{ book.page }}</td>
                       <td class="py-2 px-4 border border-gray-200">
                           <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_book/{{book.id}}">Editează</a>
                           <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_book/{{book.id}}" onclick="return confirm('Ești sigur?')">Șterge</a>
