@@ -76,20 +76,18 @@ def add_member():
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
     if request.method == 'POST':
-        title = request.form.get('searcht', '').strip()
-        author = request.form.get('searcha', '').strip()
-        isbn = request.form.get('searchi', '').strip()
-
-        books_query = db.session.query(Book, Stock).join(Stock)
-
-        if title:
-            books_query = books_query.filter(Book.title.like(f'%{title}%'))
-        if author:
-            books_query = books_query.filter(Book.author.like(f'%{author}%'))
-        if isbn:
-            books_query = books_query.filter(Book.isbn.like(f'%{isbn}%'))
-
-        books = books_query.all()
+        search_term = request.form.get('search')
+        
+        # Dacă există termenul de căutare, se va căuta după titlu, autor sau ISBN
+        if search_term:
+            books = db.session.query(Book, Stock).join(Stock).filter(
+                (Book.title.like(f'%{search_term}%')) |
+                (Book.author.like(f'%{search_term}%')) |
+                (Book.isbn.like(f'%{search_term}%'))
+            ).all()
+        else:
+            # Dacă nu există niciun termen de căutare, returnează toate cărțile
+            books = db.session.query(Book, Stock).join(Stock).all()
     else:
         books = db.session.query(Book, Stock).join(Stock).all()
 
