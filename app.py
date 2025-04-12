@@ -75,21 +75,23 @@ def add_member():
 
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
-    if request.method == 'POST':
-        search_term = request.form.get('search')
-        
-        # Dacă există termenul de căutare, se va căuta după titlu, autor sau ISBN
-        if search_term:
-            books = db.session.query(Book, Stock).join(Stock).filter(
-                (Book.title.like(f'%{search_term}%')) |
-                (Book.author.like(f'%{search_term}%')) |
-                (Book.isbn.like(f'%{search_term}%'))
-            ).all()
-        else:
-            # Dacă nu există niciun termen de căutare, returnează toate cărțile
-            books = db.session.query(Book, Stock).join(Stock).all()
+    page = request.args.get('page', 1, type=int)  # Parametru de paginare, default 1
+    per_page = 3  # Câte cărți pe pagină
+
+    # Căutarea cărților
+    search_term = request.form.get('search') if request.method == 'POST' else None
+    
+    if search_term:
+        books_query = db.session.query(Book, Stock).join(Stock).filter(
+            (Book.title.like(f'%{search_term}%')) |
+            (Book.author.like(f'%{search_term}%')) |
+            (Book.isbn.like(f'%{search_term}%'))
+        )
     else:
-        books = db.session.query(Book, Stock).join(Stock).all()
+        books_query = db.session.query(Book, Stock).join(Stock)
+    
+    # Paginați rezultatele
+    books = books_query.paginate(page, per_page, False)  # False pentru a nu include "next" și "prev" în URL
 
     return render_template('view_books.html', books=books)
 

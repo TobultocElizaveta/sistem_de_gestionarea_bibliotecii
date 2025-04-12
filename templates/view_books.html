@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
 <div class="overflow-x-auto rounded-lg shadow w-full">
     <div class="container mx-auto py-8">
         <center><h1 class="text-2xl font-semibold mb-4">Lista Cărților</h1>
@@ -12,35 +11,54 @@
             </form>
         </center>
         <table class="w-full bg-white border border-gray-200 border-collapse">
-          <thead>
-              <tr class="bg-gray-100">
-                  <th class="py-2 px-4 text-left border border-gray-200">ID Carte</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Titlu</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Autor</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">ISBN</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Editură</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Anul</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Acțiune</th>
-              </tr>
-          </thead>
-          <tbody>
-              {% for book, stock in books %}
-              <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
-                      <td class="py-2 px-4 border border-gray-200">{{book.id}}</td>
-                      <td class="py-2 px-4 border border-gray-200"><a href="/view_book/{{book.id}}" class="text-blue" title="Afișează mai multe detalii">{{ book.title }}</a></td>
-                      <td class="py-2 px-4 border border-gray-200">{{ book.author }}</td>
-                      <td class="py-2 px-4 border border-gray-200">{{ book.isbn }}</td>
-                      <td class="py-2 px-4 border border-gray-200">{{ book.publisher }}</td>
-                      <td class="py-2 px-4 border border-gray-200"> {{ book.page }}</td>
-                      <td class="py-2 px-4 border border-gray-200">
-                          <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_book/{{book.id}}">Editează</a>
-                          <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_book/{{book.id}}" onclick="return confirm('Ești sigur?')">Șterge</a>
-                      </td>
-                  </tr>
-              {% endfor %}
-          </tbody>
-      </table>
-      
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="py-2 px-4 text-left border border-gray-200">ID Carte</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Titlu</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Autor</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">ISBN</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Editură</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Anul</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Acțiune</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book, stock in books.items %}
+                <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
+                    <td class="py-2 px-4 border border-gray-200">{{book.id}}</td>
+                    <td class="py-2 px-4 border border-gray-200"><a href="/view_book/{{book.id}}" class="text-blue" title="Afișează mai multe detalii">{{ book.title }}</a></td>
+                    <td class="py-2 px-4 border border-gray-200">{{ book.author }}</td>
+                    <td class="py-2 px-4 border border-gray-200">{{ book.isbn }}</td>
+                    <td class="py-2 px-4 border border-gray-200">{{ book.publisher }}</td>
+                    <td class="py-2 px-4 border border-gray-200">{{ book.page }}</td>
+                    <td class="py-2 px-4 border border-gray-200">
+                        <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_book/{{book.id}}">Editează</a>
+                        <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_book/{{book.id}}" onclick="return confirm('Ești sigur?')">Șterge</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination controls -->
+        <div class="mt-4 flex justify-center items-center">
+            {% if books.has_prev %}
+                <a href="{{ url_for('book_list', page=books.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
+            {% endif %}
+
+            <!-- Numeric page buttons -->
+            <div class="mx-2">
+                {% for page_num in range(1, books.pages + 1) %}
+                    <a href="{{ url_for('book_list', page=page_num) }}" class="px-4 py-2 border border-gray-300 rounded mx-1 {{ 'bg-blue-500 text-white' if page_num == books.page else 'text-blue-500' }} hover:bg-blue-600">
+                        {{ page_num }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            {% if books.has_next %}
+                <a href="{{ url_for('book_list', page=books.next_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Următoare</a>
+            {% endif %}
+        </div>
     </div>
 </div>
 
