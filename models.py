@@ -3,18 +3,18 @@ db=SQLAlchemy()
 
 
 class Book(db.Model):
-    id=db.Column(db.Integer,primary_key=True)
-    title=db.Column(db.String(200),nullable=False)
-    author=db.Column(db.String(200))
-    isbn=db.Column(db.String(20))
-    publisher=db.Column(db.String(100))
-    page=db.Column(db.Integer,default=0)
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False, index=True)
+    author = db.Column(db.String(200), index=True)
+    isbn = db.Column(db.String(20), index=True)
+    publisher = db.Column(db.String(100))
+    page = db.Column(db.Integer, default=0)
     stocks = db.relationship('Stock', back_populates='book', cascade='all, delete-orphan')
 
 class Member(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100))
+    name = db.Column(db.String(100), nullable=False, index=True)
+    email = db.Column(db.String(100), index=True)
     phone = db.Column(db.String(9))
     address = db.Column(db.String(200))
 

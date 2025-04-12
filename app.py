@@ -76,18 +76,22 @@ def add_member():
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
     if request.method == 'POST':
-        if 'searcht'and 'searcha' in request.form:
-            title = request.form.get('searcht')
-            author=request.form.get('searcha')
-            books = db.session.query(Book, Stock).join(Stock).filter((Book.title.like(f'%{title}%')),(Book.author.like(f'%{author}%'))).all()
-        elif 'searcht' in request.form:
-             title=request.form.get('searcht')
-             books = db.session.query(Book, Stock).join(Stock).filter(Book.title.like(f'%{title}%')).all()
-        elif 'searcha' in request.form:
-             author=request.form.get('searcha')
-             books = db.session.query(Book, Stock).join(Stock).filter(Book.author.like(f'%{author}%')).all()
+        title = request.form.get('searcht', '').strip()
+        author = request.form.get('searcha', '').strip()
+        isbn = request.form.get('searchi', '').strip()
+
+        books_query = db.session.query(Book, Stock).join(Stock)
+
+        if title:
+            books_query = books_query.filter(Book.title.like(f'%{title}%'))
+        if author:
+            books_query = books_query.filter(Book.author.like(f'%{author}%'))
+        if isbn:
+            books_query = books_query.filter(Book.isbn.like(f'%{isbn}%'))
+
+        books = books_query.all()
     else:
-        books= db.session.query(Book, Stock).join(Stock).all()
+        books = db.session.query(Book, Stock).join(Stock).all()
 
     return render_template('view_books.html', books=books)
 
