@@ -160,19 +160,20 @@
   <div class="bg-gray-100 flex-1 p-6 md:mt-16">
 
       <!-- Display the flash messages -->
-      {% with messages = get_flashed_messages() %}
-      {% if messages %}
+      <!-- Display the flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
           <ul>
-              {% for message in messages %}
-                   {% if 'success' in message %}
-                      <li ><div class="alert alert-success mb-5">{{ message }}<div></li>
-                    {% elif 'warning' or 'error' in message %}
-                    <li ><Div Class="alert alert-error mb-5">{{ message }}<div></li>
-                    {% endif %}
-              {% endfor %}
+            {% for category, message in messages %}
+              {% if category == 'success' %}
+                <li><div class="alert alert-success mb-5 bg-green-500 text-white p-3 rounded">{{ message }}</div></li>
+              {% elif category == 'error' %}
+                <li><div class="alert alert-error mb-5 bg-red-500 text-white p-3 rounded">{{ message }}</div></li>
+              {% endif %}
+            {% endfor %}
           </ul>
-      {% endif %}
-      {% endwith %}
+        {% endif %}
+        {% endwith %}
     {% block content %}
 
 
