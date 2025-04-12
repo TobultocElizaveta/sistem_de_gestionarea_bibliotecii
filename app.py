@@ -76,8 +76,7 @@ def add_member():
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
     page = request.args.get('page', 1, type=int)  # Parametru de paginare, default 1
-    per_page = 3  # Câte cărți pe pagină
-
+    per_page = 15  # Câte cărți pe pagină
     # Căutarea cărților
     search_term = request.form.get('search') if request.method == 'POST' else None
     
@@ -93,7 +92,29 @@ def book_list():
     # Paginați rezultatele
     books = books_query.paginate(page, per_page, False)  # False pentru a nu include "next" și "prev" în URL
 
-    return render_template('view_books.html', books=books)
+    # Calculul paginilor vizibile (3 butoane înainte și 3 după)
+    page_range = []
+    
+    # Primele pagini
+    if books.page > 2:
+        page_range.append(1)  # Adăugăm prima pagină
+    
+    # Adăugăm 3 pagini înainte și 3 pagini după pagina curentă
+    for i in range(max(1, books.page - 1), min(books.page + 2, books.pages) + 1):
+        if i not in page_range:
+            page_range.append(i)
+
+    # Verificăm dacă trebuie să adăugăm punctele de suspensie
+    if books.page > 3:
+        page_range.insert(1, '...')  # Adăugăm "..." înainte de a doua pagină
+
+    # Pagina finală
+    if books.page < books.pages - 2:
+        page_range.append('...')
+        page_range.append(books.pages)  # Adăugăm ultima pagină
+    
+    return render_template('view_books.html', books=books, page_range=page_range)
+
 
 @app.route('/view_members', methods=['GET','POST'])
 def member_list():
