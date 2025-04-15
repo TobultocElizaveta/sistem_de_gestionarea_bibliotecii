@@ -44,52 +44,46 @@ def init_genres():
 
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
-    genres = Genre.query.all()  # Obținem toate genurile din baza de date
+    genres = Genre.query.all() 
 
     if request.method == 'POST':
-        # Preia datele din formular
         title = request.form.get('title')
         author = request.form.get('author')
         isbn = request.form.get('isbn')
         publisher = request.form.get('publisher')
         page = request.form.get('page')
-        genre_id = request.form.get('genre_id')  # Preia genul
+        genre_id = request.form.get('genre_id')  
         stock = request.form.get('stock')
 
-        # Verifică și convertește valorile pentru a evita erori
         try:
-            page = int(page)  # Convertește anul la întreg
-            stock = int(stock)  # Convertește stocul la întreg
-            genre_id = int(genre_id)  # Convertește genul la întreg
+            page = int(page) 
+            stock = int(stock)  
+            genre_id = int(genre_id) 
         except ValueError:
             flash('Datele introduse nu sunt valide!', 'danger')
             return redirect(url_for('add_book'))
 
-        # Creează obiectul Book
         new_book = Book(
             title=title,
             author=author,
             isbn=isbn,
             publisher=publisher,
             page=page,
-            genre_id=genre_id  # Asociem genul cărții
+            genre_id=genre_id 
         )
 
-        # Adaugă cartea în baza de date
         db.session.add(new_book)
-        db.session.flush()  # Asigură-te că ID-ul cărții este generat
+        db.session.flush()  
 
-        # Creează obiectul Stock
         new_stock = Stock(book_id=new_book.id, total_quantity=stock, available_quantity=stock)
         db.session.add(new_stock)
 
-        # Salvează schimbările în baza de date
         db.session.commit()
 
         flash('Carte adăugată cu succes!', 'success')
         return redirect(url_for('index'))
 
-    return render_template('add_book.html', genres=genres)  # Returnează pagina cu genurile disponibile
+    return render_template('add_book.html', genres=genres)  
 
 @app.route('/add_member',methods=['GET','POST'])
 def add_member():
@@ -112,9 +106,9 @@ def add_member():
 
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
-    page = request.args.get('page', 1, type=int)  # Parametru de paginare, default 1
-    per_page = 15  # Câte cărți pe pagină
-    # Căutarea cărților
+    page = request.args.get('page', 1, type=int)  
+    per_page = 15  
+
     search_term = request.form.get('search') if request.method == 'POST' else None
     
     if search_term:
@@ -126,29 +120,23 @@ def book_list():
     else:
         books_query = db.session.query(Book, Stock).join(Stock)
     
-    # Paginați rezultatele
-    books = books_query.paginate(page, per_page, False)  # False pentru a nu include "next" și "prev" în URL
+    books = books_query.paginate(page, per_page, False)  
 
-    # Calculul paginilor vizibile (3 butoane înainte și 3 după)
     page_range = []
     
-    # Primele pagini
     if books.page > 2:
-        page_range.append(1)  # Adăugăm prima pagină
+        page_range.append(1)  
     
-    # Adăugăm 3 pagini înainte și 3 pagini după pagina curentă
     for i in range(max(1, books.page - 1), min(books.page + 2, books.pages) + 1):
         if i not in page_range:
             page_range.append(i)
 
-    # Verificăm dacă trebuie să adăugăm punctele de suspensie
     if books.page > 3:
-        page_range.insert(1, '...')  # Adăugăm "..." înainte de a doua pagină
+        page_range.insert(1, '...')  
 
-    # Pagina finală
     if books.page < books.pages - 2:
         page_range.append('...')
-        page_range.append(books.pages)  # Adăugăm ultima pagină
+        page_range.append(books.pages) 
     
     return render_template('view_books.html', books=books, page_range=page_range)
 
