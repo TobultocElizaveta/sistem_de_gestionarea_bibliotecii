@@ -33,38 +33,63 @@ def calculate_total_rent_current_month():
 
     return total_rent if total_rent else 0
 
+@app.route('/init_genres')
+def init_genres():
+    genres = ['Roman', 'Istorie', 'Geografie', 'Știință', 'Ficțiune', 'Poezie']
+    for name in genres:
+        if not Genre.query.filter_by(name=name).first():
+            db.session.add(Genre(name=name))
+    db.session.commit()
+    return 'Genurile au fost adăugate.'
+
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
-    genres = Genre.query.all()
+    genres = Genre.query.all()  # Obținem toate genurile din baza de date
+
     if request.method == 'POST':
+        # Preia datele din formular
         title = request.form.get('title')
         author = request.form.get('author')
         isbn = request.form.get('isbn')
         publisher = request.form.get('publisher')
         page = request.form.get('page')
-        genre_id = request.form.get('genre_id')
+        genre_id = request.form.get('genre_id')  # Preia genul
         stock = request.form.get('stock')
 
+        # Verifică și convertește valorile pentru a evita erori
+        try:
+            page = int(page)  # Convertește anul la întreg
+            stock = int(stock)  # Convertește stocul la întreg
+            genre_id = int(genre_id)  # Convertește genul la întreg
+        except ValueError:
+            flash('Datele introduse nu sunt valide!', 'danger')
+            return redirect(url_for('add_book'))
+
+        # Creează obiectul Book
         new_book = Book(
             title=title,
             author=author,
             isbn=isbn,
             publisher=publisher,
             page=page,
-            genre_id=genre_id
+            genre_id=genre_id  # Asociem genul cărții
         )
 
+        # Adaugă cartea în baza de date
         db.session.add(new_book)
-        db.session.flush()
+        db.session.flush()  # Asigură-te că ID-ul cărții este generat
 
+        # Creează obiectul Stock
         new_stock = Stock(book_id=new_book.id, total_quantity=stock, available_quantity=stock)
         db.session.add(new_stock)
+
+        # Salvează schimbările în baza de date
         db.session.commit()
+
         flash('Carte adăugată cu succes!', 'success')
         return redirect(url_for('index'))
 
-    return render_template('add_book.html', genres=genres)
-
+    return render_template('add_book.html', genres=genres)  # Returnează pagina cu genurile disponibile
 
 @app.route('/add_member',methods=['GET','POST'])
 def add_member():
@@ -84,14 +109,6 @@ def add_member():
         return redirect(url_for('add_member'))
     return render_template('add_member.html')
 
-@app.route('/init_genres')
-def init_genres():
-    genres = ['Roman', 'Istorie', 'Geografie', 'Ficțiune', 'Știință', 'Poezie']
-    for name in genres:
-        if not Genre.query.filter_by(name=name).first():
-            db.session.add(Genre(name=name))
-    db.session.commit()
-    return "Genurile au fost adăugate cu succes!"
 
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
