@@ -1,22 +1,31 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="flex justify-center items-center  bg-gray-100">
-    <div class="bg-white p-8 rounded shadow-md w-3/4" >
+<div class="flex justify-center items-center bg-gray-100 min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-3/4">
         <h1 class="text-2xl mb-4">Adaugă o carte</h1>
         <form method="POST" action="{{ url_for('add_book') }}">
             <label for="title" class="block mb-2">Titlu:</label>
-            <input type="text" name="title" class="w-full border rounded p-2 mb-2" required ><br>
+            <input type="text" name="title" class="w-full border rounded p-2 mb-2" required><br>
 
             <label for="author" class="block mb-2">Autor:</label>
             <input type="text" name="author" class="w-full border rounded p-2 mb-2" required><br>
 
-            <label for="genre" class="block mb-2">Gen:</label>
-                <select name="genre_id" id="genre" class="w-full border rounded p-2 mb-2" required>
-                    {% for genre in genres %}
-                        <option value="{{ genre.id }}">{{ genre.name }}</option>
-                    {% endfor %}
-                </select>
+            <label for="genre_search" class="block mb-2">Gen:</label>
+            <!-- Input pentru căutare -->
+            <input type="text" id="genre_search" placeholder="Caută gen..." class="w-full border rounded p-2 mb-2" autocomplete="off">
 
+            <!-- Listă cu opțiuni ascunsă inițial -->
+            <div id="genre_list" class="border rounded p-2 max-h-40 overflow-y-auto mb-4 hidden">
+                {% for genre in genres %}
+                    <div class="genre-option cursor-pointer p-1 hover:bg-gray-200" data-id="{{ genre.id }}">
+                        {{ genre.name }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Hidden input pentru ID-ul genului selectat -->
+            <input type="hidden" name="genre_id" id="selected_genre_id" required>
 
             <label for="isbn" class="block mb-2">ISBN:</label>
             <input type="text" name="isbn" class="w-full border rounded p-2 mb-2" required><br>
@@ -34,4 +43,41 @@
         </form>
     </div>
 </div>
-{% endblock%}
+
+<script>
+    const searchInput = document.getElementById('genre_search');
+    const genreList = document.getElementById('genre_list');
+    const genreOptions = genreList.getElementsByClassName('genre-option');
+    const selectedGenreId = document.getElementById('selected_genre_id');
+
+    // Arată lista când utilizatorul apasă pe input
+    searchInput.addEventListener('focus', function () {
+        genreList.classList.remove('hidden');
+    });
+
+    // Filtrare opțiuni pe baza căutării
+    searchInput.addEventListener('input', function () {
+        const searchTerm = searchInput.value.toLowerCase();
+        Array.from(genreOptions).forEach(option => {
+            const text = option.textContent.toLowerCase();
+            option.style.display = text.includes(searchTerm) ? 'block' : 'none';
+        });
+    });
+
+    // Setează valoarea când utilizatorul face click pe un gen
+    Array.from(genreOptions).forEach(option => {
+        option.addEventListener('click', function () {
+            searchInput.value = option.textContent;
+            selectedGenreId.value = option.getAttribute('data-id');
+        });
+    });
+
+    // Ascunde lista doar când utilizatorul selectează un gen
+    searchInput.addEventListener('blur', function () {
+        if (!searchInput.value) {
+            genreList.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}
+
