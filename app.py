@@ -41,7 +41,8 @@ def add_book():
         isbn = request.form.get('isbn')
         publisher = request.form.get('publisher')
         page = request.form.get('page')
-        new_book = Book(title=title, author=author, isbn=isbn, publisher=publisher, page=page)
+        genre = request.form.get('genre')
+        new_book = Book(title=title, author=author, isbn=isbn, publisher=publisher, page=page, genre=genre)
         stock = request.form.get('stock')
         db.session.add(new_book)
         db.session.flush()
@@ -139,6 +140,7 @@ def edit_book(id):
             book.publisher = request.form.get('publisher')
             book.page = request.form.get('page')
             stock.total_quantity=request.form.get('stock')
+            book.genre = request.form.get('genre')
             db.session.commit()
             flash("Actualizat cu succes",'success')
     except Exception as e:

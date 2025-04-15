@@ -9,6 +9,7 @@ class Book(db.Model):
     isbn = db.Column(db.String(20), index=True)
     publisher = db.Column(db.String(100))
     page = db.Column(db.Integer, default=0)
+    genre = db.Column(db.String(100))
     stocks = db.relationship('Stock', back_populates='book', cascade='all, delete-orphan')
 
 class Member(db.Model):
