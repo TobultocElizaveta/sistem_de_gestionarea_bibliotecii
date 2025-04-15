@@ -3,15 +3,20 @@
 <div class="flex justify-center items-center bg-gray-100"> 
     <div class="bg-white p-8 rounded shadow-md w-3/4">
         <h1 class="text-2xl mb-4">Editează cartea</h1>
-        <form method="POST" action="{{ url_for('edit_book',id=book.id) }}">
+        <form method="POST" action="{{ url_for('edit_book', id=book.id) }}">
             <label for="title" class="block mb-2">Titlu:</label>
             <input type="text" name="title" class="w-full border rounded p-2 mb-2" value="{{book.title}}"><br>
 
             <label for="author" class="block mb-2">Autor:</label>
             <input type="text" name="author" class="w-full border rounded p-2 mb-2" value="{{book.author}}"><br>
 
-            <label for="genre" class="block mb-2">Genul:</label>
-            <input type="text" name="genre" class="w-full border rounded p-2 mb-2" value="{{book.genre}}"><br>
+            <label for="genre" class="block mb-2">Gen:</label>
+            <select name="genre_id" id="genre" class="select2 w-full border rounded p-2 mb-2" required>
+                <option></option>  <!-- Opțiune goală pentru placeholder -->
+                {% for genre in genres %}
+                    <option value="{{ genre.id }}" {% if genre.id == book.genre_id %}selected{% endif %}>{{ genre.name }}</option>
+                {% endfor %}
+            </select><br>
 
             <label for="isbn" class="block mb-2">ISBN:</label>
             <input type="text" name="isbn" class="w-full border rounded p-2 mb-2" value="{{book.isbn}}"><br>
@@ -25,8 +30,43 @@
             <label for="stock" class="block mb-2">Stoc:</label>
             <input type="text" name="stock" class="w-full border rounded p-2 mb-2" value="{{stock.total_quantity}}"><br>
 
-            <button type="submit" class="bg-blue-500 text-white rounded p-2" onclick="return Confirm('Ești sigur?')">Confirmă</button>
+            <button type="submit" class="bg-blue-500 text-white rounded p-2">Confirmă</button>
         </form>
     </div>
 </div>
-{% endblock%}
+
+<!-- Include CSS Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Include jQuery și Select2 JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+
+<script>
+    $(document).ready(function() {
+        // Asigură-te că Select2 este corect inițializat pe dropdown-ul de gen
+        console.log('Inițializare Select2 pe #genre');
+        
+        // Inițializare Select2 cu opțiuni de căutare
+        $('#genre').select2({
+            placeholder: "Selectează un gen",
+            allowClear: true,
+            minimumResultsForSearch: 0,  // Permite căutarea pentru toate opțiunile
+            width: '100%'  // Asigură că Select2 ocupă întreaga lățime
+        });
+
+        // Debugging pentru Select2: Verifică dacă Select2 este inițializat
+        $('#genre').on('select2:open', function() {
+            console.log("Select2 a fost deschis!");
+        });
+
+        // Verifică dacă genul a fost selectat
+        $('#genre').on('change', function() {
+            console.log('Genul selectat:', $(this).val());
+        });
+    });
+</script>
+
+{% endblock %}
+

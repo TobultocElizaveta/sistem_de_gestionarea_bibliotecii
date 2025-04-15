@@ -168,11 +168,12 @@ def member_list():
 
     return render_template('view_members.html', member=member)
 
-@app.route('/edit_book/<int:id>',methods=['GET','POST'])
+@app.route('/edit_book/<int:id>', methods=['GET', 'POST'])
 def edit_book(id):
-    book=Book.query.get(id)
-    #print(book.title)
-    stock=Stock.query.get(book.id)
+    book = Book.query.get(id)
+    stock = Stock.query.get(book.id)
+    genres = Genre.query.all()  # Preia toate genurile din baza de date
+
     try:
         if request.method == 'POST':
             book.title = request.form.get('title')
@@ -180,14 +181,20 @@ def edit_book(id):
             book.isbn = request.form.get('isbn')
             book.publisher = request.form.get('publisher')
             book.page = request.form.get('page')
-            stock.total_quantity=request.form.get('stock')
-            book.genre = request.form.get('genre')
+            stock.total_quantity = request.form.get('stock')
+
+            # Verifică dacă genul selectat există
+            genre_id = request.form.get('genre_id')
+            genre = Genre.query.get(genre_id)
+            if genre:
+                book.genre = genre  # Atribuie genul selectat
             db.session.commit()
-            flash("Actualizat cu succes",'success')
+            flash("Actualizat cu succes", 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f"Erroare \n{e}",'error')
-    return render_template('edit_book.html',book=book,stock=stock)
+        flash(f"Erroare \n{e}", 'error')
+
+    return render_template('edit_book.html', book=book, stock=stock, genres=genres)
 
 @app.route('/edit_member/<int:id>',methods=['GET','POST'])
 def edit_member(id):

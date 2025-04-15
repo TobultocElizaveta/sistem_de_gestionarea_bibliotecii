@@ -32,7 +32,7 @@
                             <a href="/view_book/{{ book.id }}" class="text-blue" title="Afișează mai multe detalii">{{ book.title }}</a>
                         </td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.author }}</td>
-                        <td class="py-2 px-4 border border-gray-200">{{ book.genre }}</td>
+                        <td class="py-2 px-4 border border-gray-200">{{ book.genre.name }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.isbn }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.publisher }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.page }}</td>
