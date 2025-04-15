@@ -10,8 +10,12 @@
             <label for="author" class="block mb-2">Autor:</label>
             <input type="text" name="author" class="w-full border rounded p-2 mb-2" required><br>
             
-            <label for="genre" class="block mb-2">Genul:</label>
-            <input type="text" name="genre" class="w-full border rounded p-2 mb-2" required><br>
+            <label for="genre">Gen:</label>
+                <select name="genre_id" id="genre" required>
+                    {% for genre in genres %}
+                        <option value="{{ genre.id }}">{{ genre.name }}</option>
+                    {% endfor %}
+                </select>
 
             <label for="isbn" class="block mb-2">ISBN:</label>
             <input type="text" name="isbn" class="w-full border rounded p-2 mb-2" required><br>

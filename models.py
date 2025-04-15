@@ -1,6 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 db=SQLAlchemy()
 
+class Genre(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+
+    books = db.relationship('Book', back_populates='genre')
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -9,7 +14,8 @@ class Book(db.Model):
     isbn = db.Column(db.String(20), index=True)
     publisher = db.Column(db.String(100))
     page = db.Column(db.Integer, default=0)
-    genre = db.Column(db.String(100))
+    genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'))
+    genre = db.relationship('Genre', back_populates='books')    
     stocks = db.relationship('Stock', back_populates='book', cascade='all, delete-orphan')
 
 class Member(db.Model):

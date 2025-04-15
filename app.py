@@ -1,6 +1,6 @@
 from flask import Flask,render_template,request,redirect,flash,url_for,jsonify
 from flask_migrate import Migrate
-from models import db,Book,Member,Transaction,Stock,Charges
+from models import db,Book,Member,Transaction,Stock,Charges,Genre
 import datetime
 import requests 
 from sqlalchemy import desc
@@ -33,26 +33,37 @@ def calculate_total_rent_current_month():
 
     return total_rent if total_rent else 0
 
-@app.route('/add_book',methods=['GET','POST'])
+@app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
+    genres = Genre.query.all()
     if request.method == 'POST':
         title = request.form.get('title')
         author = request.form.get('author')
         isbn = request.form.get('isbn')
         publisher = request.form.get('publisher')
         page = request.form.get('page')
-        genre = request.form.get('genre')
-        new_book = Book(title=title, author=author, isbn=isbn, publisher=publisher, page=page, genre=genre)
+        genre_id = request.form.get('genre_id')
         stock = request.form.get('stock')
+
+        new_book = Book(
+            title=title,
+            author=author,
+            isbn=isbn,
+            publisher=publisher,
+            page=page,
+            genre_id=genre_id
+        )
+
         db.session.add(new_book)
         db.session.flush()
-        new_stock=Stock(book_id=new_book.id,total_quantity=stock,available_quantity=stock)
+
+        new_stock = Stock(book_id=new_book.id, total_quantity=stock, available_quantity=stock)
         db.session.add(new_stock)
         db.session.commit()
         flash('Carte adăugată cu succes!', 'success')
         return redirect(url_for('index'))
 
-    return render_template('add_book.html')
+    return render_template('add_book.html', genres=genres)
 
 
 @app.route('/add_member',methods=['GET','POST'])
@@ -73,6 +84,14 @@ def add_member():
         return redirect(url_for('add_member'))
     return render_template('add_member.html')
 
+@app.route('/init_genres')
+def init_genres():
+    genres = ['Roman', 'Istorie', 'Geografie', 'Ficțiune', 'Știință', 'Poezie']
+    for name in genres:
+        if not Genre.query.filter_by(name=name).first():
+            db.session.add(Genre(name=name))
+    db.session.commit()
+    return "Genurile au fost adăugate cu succes!"
 
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
@@ -377,3 +396,5 @@ def stock_update(id):
         db.session.commit()
         flash("Stoc Actualizat" , "success")
     return render_template('stockupdate.html',stock=stock,book=book)
+if __name__ == '__main__':
+    app.run(debug=True)
