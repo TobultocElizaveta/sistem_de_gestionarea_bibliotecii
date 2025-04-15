@@ -42,6 +42,23 @@ def init_genres():
     db.session.commit()
     return 'Genurile au fost adăugate.'
 
+@app.route('/add_genre', methods=['GET', 'POST'])
+def add_genre():
+    if request.method == 'POST':
+        genre_name = request.form.get('genre_name')
+        # Verifică dacă genul nu există deja
+        if Genre.query.filter_by(name=genre_name).first():
+            flash("Genul există deja!", 'danger')
+            return redirect(url_for('add_genre'))
+        
+        new_genre = Genre(name=genre_name)
+        db.session.add(new_genre)
+        db.session.commit()
+        flash("Gen adăugat cu succes!", 'success')
+        return redirect(url_for('index'))
+    
+    return render_template('add_genre.html')
+
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
     genres = Genre.query.all() 
