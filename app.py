@@ -2,7 +2,7 @@ import datetime
 from flask import Flask,render_template,request,redirect,flash,url_for,jsonify
 from flask_migrate import Migrate
 from models import db,Book,Member,Transaction,Stock,Charges,Genre
-from datetime import date
+from datetime import datetime, timedelta
 import requests 
 from sqlalchemy import desc,or_
 from sqlalchemy.exc import IntegrityError,NoResultFound
@@ -289,14 +289,18 @@ def view_member(id):
 
 
 def calculate_dbt(member):
+    transactions = Transaction.query.filter_by(member_id=member.id).all()
     dbt = 0
-    charge = db.session.query(Charges).first()
-    transactions = db.session.query(Transaction).filter_by(member_id=member.id, return_date=None).all()
+
 
     for transaction in transactions:
-        days_difference = (date.today() - transaction.issue_date.date()).days
-        if days_difference > 0:
-            dbt += days_difference * charge.rentfee
+        if transaction.return_date is None:
+            due_date = transaction.issue_date + timedelta(days=14)  # calculăm data limită
+            if due_date < datetime.now():
+                days_difference = (datetime.now() - due_date).days
+                charge = Book.query.get(transaction.book_id)
+                if charge:
+                    dbt += days_difference * charge.rent_fee
     return dbt
 
 @app.route('/issuebook', methods=['GET', 'POST'])
