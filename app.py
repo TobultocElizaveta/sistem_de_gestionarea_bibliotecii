@@ -25,12 +25,15 @@ def index():
     return render_template('index.html', borrowed_books=borrowed_books, total_books=total_books,total_members=total_members,recent_transactions=recent_transactions,total_rent_current_month=total_rent_current_month)
 
 def calculate_total_rent_current_month():
-    current_month = datetime.datetime.now().month
-    current_year = datetime.datetime.now().year
-    start_date = datetime.datetime(current_year, current_month, 1)
-    end_date = datetime.datetime(current_year, current_month + 1, 1) - datetime.timedelta(days=1)
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    start_date = datetime(current_year, current_month, 1)
+    end_date = datetime(current_year, current_month + 1, 1) - timedelta(days=1)  # Используй timedelta без 'datetime.'
 
-    total_rent = db.session.query(db.func.sum(Transaction.rent_fee)).filter(Transaction.issue_date >= start_date,Transaction.issue_date <= end_date).scalar()
+    total_rent = db.session.query(db.func.sum(Transaction.rent_fee)).filter(
+        Transaction.issue_date >= start_date,
+        Transaction.issue_date <= end_date
+    ).scalar()
 
     return total_rent if total_rent else 0
 
