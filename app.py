@@ -61,7 +61,7 @@ def add_genre():
 
 @app.route('/add_book', methods=['GET', 'POST'])
 def add_book():
-    genres = Genre.query.all() 
+    genres = Genre.query.all()
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -69,15 +69,21 @@ def add_book():
         isbn = request.form.get('isbn')
         publisher = request.form.get('publisher')
         page = request.form.get('page')
-        genre_id = request.form.get('genre_id')  
         stock = request.form.get('stock')
+        genre_id = request.form.get('genre_id')
 
         try:
-            page = int(page) 
-            stock = int(stock)  
-            genre_id = int(genre_id) 
+            page = int(page)
+            stock = int(stock)
+            genre_id = int(genre_id)
         except ValueError:
             flash('Datele introduse nu sunt valide!', 'danger')
+            return redirect(url_for('add_book'))
+
+        # Verifică dacă genul există
+        genre = Genre.query.get(genre_id)
+        if not genre:
+            flash("Genul selectat nu există!", 'danger')
             return redirect(url_for('add_book'))
 
         new_book = Book(
@@ -86,26 +92,35 @@ def add_book():
             isbn=isbn,
             publisher=publisher,
             page=page,
-            genre_id=genre_id 
+            genre_id=genre_id
         )
 
         db.session.add(new_book)
-        db.session.flush()  
+        db.session.flush()  # obține ID-ul cărții pentru stock
 
-        new_stock = Stock(book_id=new_book.id, total_quantity=stock, available_quantity=stock)
+        new_stock = Stock(
+            book_id=new_book.id,
+            total_quantity=stock,
+            available_quantity=stock
+        )
         db.session.add(new_stock)
+        
+        try:
+            db.session.commit()
+            flash('Carte adăugată cu succes!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Erroare la adăugarea cărții: {e}", 'danger')
+            return redirect(url_for('add_book'))
 
-        db.session.commit()
-
-        flash('Carte adăugată cu succes!', 'success')
         return redirect(url_for('index'))
 
-    return render_template('add_book.html', genres=genres)  
+    return render_template('add_book.html', genres=genres)
 
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
     page = request.args.get('page', 1, type=int)
-    per_page = 15
+    per_page = 2
 
     genres = Genre.query.all()
 
