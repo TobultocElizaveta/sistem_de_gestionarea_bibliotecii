@@ -120,7 +120,7 @@ def add_book():
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
     page = request.args.get('page', 1, type=int)
-    per_page = 2
+    per_page = 15
 
     genres = Genre.query.all()
 
