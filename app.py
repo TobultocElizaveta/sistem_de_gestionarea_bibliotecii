@@ -374,23 +374,46 @@ def add_member():
 
 @app.route('/transactions', methods=['GET', 'POST'])
 def view_borrowings():
-    transactions = db.session.query(Transaction, Member, Book).join(Book).join(Member).order_by(desc(Transaction.return_date.is_(None))).all()
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+
+    genres = Genre.query.all()  
+
+    transactions_query = db.session.query(Transaction, Member, Book)\
+        .join(Book).join(Member)\
+        .order_by(desc(Transaction.return_date.is_(None)))
 
     if request.method == "POST":
         search = request.form['search']
-        
-        transactions_by_name = db.session.query(Transaction, Member, Book).join(Book).join(Member).filter(Member.name.like(f'%{search}%')).order_by(desc(Transaction.return_date.is_(None))).all()
-        
-        transaction_by_id = db.session.query(Transaction, Member, Book).join(Book).join(Member).filter(Transaction.id == search).order_by(desc(Transaction.return_date.is_(None))).all()
-        
-        if transactions_by_name:
-            transactions = transactions_by_name
-        elif transaction_by_id:
-            transactions = transaction_by_id
-        else:
-            transactions = []
 
-    return render_template('transactions.html', trans=transactions)
+        transactions_by_name = transactions_query.filter(Member.name.ilike(f'%{search}%'))
+        transaction_by_id = transactions_query.filter(Transaction.id == search)
+
+        if transactions_by_name.count() > 0:
+            transactions_query = transactions_by_name
+        elif transaction_by_id.count() > 0:
+            transactions_query = transaction_by_id
+        else:
+            transactions_query = transactions_query.filter(False)  
+
+    transactions = transactions_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    page_range = []
+    if transactions.page > 2:
+        page_range.append(1)
+
+    for i in range(max(1, transactions.page - 1), min(transactions.page + 2, transactions.pages) + 1):
+        if i not in page_range:
+            page_range.append(i)
+
+    if transactions.page > 3:
+        page_range.insert(1, '...')
+
+    if transactions.page < transactions.pages - 2:
+        page_range.append('...')
+        page_range.append(transactions.pages)
+
+    return render_template('transactions.html', trans=transactions, page_range=page_range)
 
 @app.route('/return_book/<int:book_id>', methods=['POST'])
 def return_book(book_id):

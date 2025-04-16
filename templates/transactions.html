@@ -22,7 +22,7 @@
                 </tr>
           </thead>
           <tbody>
-              {% for trans,member,book in trans %}
+            {% for trans, member, book in trans.items %}
               <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
                       <td class="py-2 px-4 border border-gray-200">{{ trans.id }}</td>
                       <td class="py-2 px-4 border border-gray-200"><a href="/view_book/{{book.id}}" class="text-green-500" title="Afișează mai multe detalii">{{ book.title }}</a></td>
@@ -34,7 +34,29 @@
               {% endfor %}
           </tbody>
       </table>
-      
+       <!-- Pagination controls -->
+            <div class="mt-4 flex justify-center items-center">
+                {% if trans.has_prev %}
+                    <a href="{{ url_for('view_borrowings', page=trans.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
+                {% endif %}
+
+                <div class="mx-2 flex">
+                    {% for page_num in page_range %}
+                        {% if page_num == '...' %}
+                            <span class="px-4 py-2 text-gray-500">...</span>
+                        {% else %}
+                            <a href="{{ url_for('view_borrowings', page=page_num) }}" class="px-4 py-2 border border-gray-300 rounded mx-1 {{ 'bg-blue-500 text-white' if page_num == trans.page else 'text-blue-500' }} hover:bg-blue-600">
+                                {{ page_num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if trans.has_next %}
+                    <a href="{{ url_for('view_borrowings', page=trans.next_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Următoare</a>
+                {% endif %}
+            </div>
+
     </div>
 </div>
 
