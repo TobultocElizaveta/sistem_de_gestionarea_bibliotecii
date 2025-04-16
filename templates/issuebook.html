@@ -73,9 +73,9 @@
 
 <script>
     function issueBook() {
-        const debt = {{ debt }}; 
+        const userDebt = JSON.parse('{{ debt|tojson }}'); 
     
-        if (debt > 500) {
+        if (userDebt > 500) {   
             const warningElement = document.createElement('p');
             warningElement.textContent = 'Datoria este mai mare de 500! Vă rugăm să verificați înainte de a confirma.';
             warningElement.style.color = 'red';
@@ -83,7 +83,7 @@
             const confirmButton = document.getElementById('confirmButton');
             confirmButton.parentElement.appendChild(warningElement);
         } else {
-            const form = document.querySelector('form[action="{{ url_for('issue_book_confirm') }}"]');
+            const form = document.querySelector('form[action="{{ url_for("issue_book_confirm") }}"]');
             form.submit();
         }
     }
