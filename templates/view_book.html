@@ -27,19 +27,25 @@
                         <th class="border px-4 py-2">Nume</th>
                         <th class="border px-4 py-2">Data Împrumutului</th>
                         <th class="border px-4 py-2">Data Returnării</th>
-                        <th class="border px-4 py-2">Acțiune</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for trans in trans %}
+                    {% for t in trans %}
                         <tr>
-                            <td class="py-2 px-4 border border-gray-200"><a href="/view_member/{{trans.member_id}}"  class ="text-blue-500" title="Afișează mai multe detalii">{{ trans.member_id }}</a></td>
-                            <td class="py-2 px-4 border border-gray-200"><a href="/view_member/{{trans.member_name}}"  class ="text-blue-500" title="Afișează mai multe detalii">{{ trans.member_name }}</a></td>
-                            <td class="border px-4 py-2">{{ trans.issue_date.date() }}</td>
-                            <td class="border px-4 py-2" style="text-transform: none;">{{ trans.return_date or 'Nereturnată încă' }}</td>
-                            <td class="py-2 px-4 border border-gray-200"><a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href ="/returnbook/{{trans.id}}">Gestionează</a></td>
+                            <td class="py-2 px-4 border border-gray-200">
+                                <a href="/view_member/{{ t.member_id }}" class="text-blue-500" title="Afișează mai multe detalii">
+                                    {{ t.member_id }}
+                                </a>
+                            </td>
+                            <td class="py-2 px-4 border border-gray-200">
+                                <a href="/view_member/{{ t.member_id }}" class="text-blue-500" title="Afișează mai multe detalii">
+                                    {{ t.member_name }}
+                                </a>
+                            </td>
+                            <td class="border px-4 py-2">{{ t.issue_date.date() }}</td>
+                            <td class="border px-4 py-2" style="text-transform: none;">{{ t.return_date or 'Nereturnată încă' }}</td>
                         </tr>
-                    {% endfor %}
+                        {% endfor %}
                 </tbody>
             </table>
         {% else %}

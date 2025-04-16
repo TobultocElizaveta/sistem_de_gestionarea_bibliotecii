@@ -241,11 +241,22 @@ def delete_book(id):
 
 @app.route('/view_book/<int:id>')
 def view_book(id):
-    book=Book.query.get(id)
-    stock=Stock.query.filter_by(book_id=id).first()
-    transaction=Transaction.query.filter_by(book_id=id).all()
-    return render_template('view_book.html',book=book,trans=transaction,stock=stock)
+    book = Book.query.get(id)
+    stock = Stock.query.filter_by(book_id=id).first()
+    transactions = Transaction.query.filter_by(book_id=id).all()
 
+    trans_data = []
+    for trans in transactions:
+        member = Member.query.get(trans.member_id)
+        trans_data.append({
+            'id': trans.id,
+            'member_id': trans.member_id,
+            'member_name': member.name if member else 'Necunoscut',
+            'issue_date': trans.issue_date,
+            'return_date': trans.return_date
+        })
+
+    return render_template('view_book.html', book=book, trans=trans_data, stock=stock)
 
 @app.route('/view_member/<int:id>')
 def view_member(id):
