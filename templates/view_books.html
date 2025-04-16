@@ -6,11 +6,24 @@
         <center>
             <h1 class="text-2xl font-semibold mb-4">Lista Cărților</h1>
 
-            <form class="mb-4" method="post">
-                <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" style="width: 400px;" placeholder="Caută după Titlu, Autor sau ISBN">
-                <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
+            <form method="post" class="mb-6 flex justify-center items-center gap-4">
+                <!-- Căutare generală -->
+                <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" style="width: 300px;" placeholder="Titlu, Autor, ISBN">
+            
+                <!-- Căutare gen cu datalist -->
+                <input type="text" name="genre_name" class="px-2 py-1 border border-gray-300 rounded" style="width: 200px;" list="genre-options" placeholder="Genul cărții">
+                <datalist id="genre-options">
+                    {% for genre in genres %}
+                        <option value="{{ genre.name }}">
+                    {% endfor %}
+                </datalist>
+                            
+                    <!-- Butonul de căutare -->
+                    <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
+                </div>
             </form>
         </center>
+
         <table class="w-full bg-white border border-gray-200 border-collapse">
             <thead>
                 <tr class="bg-gray-100">
@@ -72,3 +85,4 @@
 </div>
 
 {% endblock %}
+

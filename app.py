@@ -102,61 +102,49 @@ def add_book():
 
     return render_template('add_book.html', genres=genres)  
 
-@app.route('/add_member',methods=['GET','POST'])
-def add_member():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-        address = request.form.get('address')
-
-
-        new_member=Member(name=name,email=email,phone=phone,address=address)
-
-        db.session.add(new_member)
-        db.session.commit()
-
-        flash('Utilizator adăugat cu succes!', 'success')
-        return redirect(url_for('add_member'))
-    return render_template('add_member.html')
-
-
 @app.route('/view_books', methods=['GET', 'POST'])
 def book_list():
-    page = request.args.get('page', 1, type=int)  
-    per_page = 15  
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+
+    genres = Genre.query.all()
 
     search_term = request.form.get('search') if request.method == 'POST' else None
-    
-    if search_term:
-        books_query = db.session.query(Book, Stock).join(Stock).filter(
-            (Book.title.like(f'%{search_term}%')) |
-            (Book.author.like(f'%{search_term}%')) |
-            (Book.isbn.like(f'%{search_term}%'))
-        )
-    else:
-        books_query = db.session.query(Book, Stock).join(Stock)
-    
-    books = books_query.paginate(page, per_page, False)  
+    genre_name = request.form.get('genre_name') if request.method == 'POST' else None
 
+    books_query = db.session.query(Book, Stock).join(Stock)
+
+    if search_term:
+        books_query = books_query.filter(
+            (Book.title.ilike(f'%{search_term}%')) |
+            (Book.author.ilike(f'%{search_term}%')) |
+            (Book.isbn.ilike(f'%{search_term}%'))
+        )
+
+    if genre_name:
+        genre = Genre.query.filter(Genre.name.ilike(f"%{genre_name}%")).first()
+        if genre:
+            books_query = books_query.filter(Book.genre_id == genre.id)
+
+    books = books_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    # Pagination logic
     page_range = []
-    
     if books.page > 2:
-        page_range.append(1)  
-    
+        page_range.append(1)
+
     for i in range(max(1, books.page - 1), min(books.page + 2, books.pages) + 1):
         if i not in page_range:
             page_range.append(i)
 
     if books.page > 3:
-        page_range.insert(1, '...')  
+        page_range.insert(1, '...')
 
     if books.page < books.pages - 2:
         page_range.append('...')
-        page_range.append(books.pages) 
-    
-    return render_template('view_books.html', books=books, page_range=page_range)
+        page_range.append(books.pages)
 
+    return render_template('view_books.html', books=books, page_range=page_range, genres=genres)
 
 @app.route('/view_members', methods=['GET','POST'])
 def member_list():
