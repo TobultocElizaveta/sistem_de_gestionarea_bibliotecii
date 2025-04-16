@@ -402,23 +402,16 @@ def calculate_rent(transaction):
 
 API_BASE_URL = "https://frappe.io/api/method/frappe-library"
 
-
-@app.route('/import_book', methods=['GET', 'POST'])
+@app.route('/import_book', methods=['GET'])
 def imp():
-    if request.method == 'POST':
-        title = request.form.get('title', default='', type=str)
-        num_books = request.form.get('num_books', default=20, type=int)
-        num_pages = (num_books + 19) // 20
-        all_books = []
-        for page in range(1, num_pages + 1):
-            url = f"{API_BASE_URL}?page={page}&title={title}"
-            response = requests.get(url)
-            data = response.json()
-            all_books.extend(data.get('message', []))  
-        return render_template('imp.html', data=all_books[:num_books], title=title, num_books=num_books)
-
-
-    return render_template('imp.html', data=[], title='', num_books=20)
+    borrowed_books = db.session.query(Book, Member).\
+        select_from(Book).\
+        join(Stock, Stock.book_id == Book.id).\
+        join(Transaction, Transaction.book_id == Book.id).\
+        join(Member, Member.id == Transaction.member_id).\
+        filter(Stock.available_quantity == 0).\
+        all()
+    return render_template('imp.html', data=borrowed_books, title='Cărți împrumutate', num_books=len(borrowed_books))
 
 @app.route('/save_all_books', methods=['POST'])
 def save_all_books():
