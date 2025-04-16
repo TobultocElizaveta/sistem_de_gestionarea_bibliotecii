@@ -1,7 +1,8 @@
+import datetime
 from flask import Flask,render_template,request,redirect,flash,url_for,jsonify
 from flask_migrate import Migrate
 from models import db,Book,Member,Transaction,Stock,Charges,Genre
-from datetime import datetime
+from datetime import date
 import requests 
 from sqlalchemy import desc,or_
 from sqlalchemy.exc import IntegrityError,NoResultFound
@@ -272,8 +273,8 @@ def calculate_dbt(member):
     transactions = db.session.query(Transaction).filter_by(member_id=member.id, return_date=None).all()
 
     for transaction in transactions:
-        days_difference = (datetime.date.today() - transaction.issue_date.date()).days
-        if days_difference > 0: 
+        days_difference = (date.today() - transaction.issue_date.date()).days
+        if days_difference > 0:
             dbt += days_difference * charge.rentfee
     return dbt
 
@@ -314,7 +315,7 @@ def issue_book_confirm():
             flash("Cartea nu este disponibilă.", "error")
             return redirect('/issuebook')
 
-        new_transaction = Transaction(book_id=bookid, member_id=memberid, issue_date=datetime.date.today())
+        new_transaction = Transaction(book_id=bookid, member_id=memberid, issue_date=datetime.today().date())
         print(new_transaction)
 
         stock.available_quantity -= 1
