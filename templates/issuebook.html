@@ -8,11 +8,11 @@
     <form method="post" class="mb-8">
         <div class="flex space-x-4">
             <div class="w-1/2">
-                <label for="mk" class="block text-sm font-medium text-gray-700">Caută Utilizator după ID sau Nume:</label>
+                <label for="mk" class="block text-sm font-medium text-gray-700" style="text-transform: none;">Caută utilizator după ID sau Nume:</label>
                 <input type="text" name="mk" id="mk" class="w-full border rounded p-2 mb-2" required>
             </div>
             <div class="w-1/2">
-                <label for="bk" class="block text-sm font-medium text-gray-700">Caută Carte după ID, Titlu sau ISBN:</label>
+                <label for="bk" class="block text-sm font-medium text-gray-700" style="text-transform: none;">Caută carte după ID, Titlu sau ISBN:</label>
                 <input type="text" name="bk" id="bk"  class="w-full border rounded p-2 mb-2" required>
             </div>
         </div>
@@ -29,9 +29,9 @@
             <p class="text-gray-600" style="text-transform: none;">{{ member.email }}</p>
             <p class="text-gray-600">Datorie: 
                 {% if debt > 450 %}
-                    <div class="alert alert-error mb-5">{{ debt }}<div>
+                    <div class="alert alert-error mb-5">{{ debt }}</div>
                 {% else %}
-                    <div class="alert alert-success mb-5">{{ debt }}<div>
+                    <div class="alert alert-success mb-5">{{ debt }}</div>
                 {% endif %}
             </p>
         </div>

@@ -8,14 +8,14 @@
         <p class="text-gray-600">{{ book.author }}</p>
         <p class="text-gray-600">{{ book.isbn }}</p>
         <p class="text-gray-600">{{ book.publisher }}</p>
-        <p class="text-gray-600">Număr de pagini: {{ book.page }}</p>
+        <p class="text-gray-600">Anul: {{ book.page }}</p>
     </div>
     <div class="bg-white mt-4 p-6 rounded shadow">
         <h2 class="text-xl font-semibold mb-2">Detalii Stoc</h2>
-        <p class="text-gray-600">Cantitate totală: {{ stock.total_quantity }}</p>
-        <p class="text-gray-600">Cantitate disponibilă: {{ stock.available_quantity  or "Stoc epuizat"}}</p>
-        <p class="text-gray-600">Cantitate împrumutată: {{ stock.borrowed_quantity }}</p>
-        <p class="text-gray-600">Total împrumuturi: {{ stock.total_borrowed }}</p>
+        <p class="text-gray-600" style="text-transform: none;">Cantitate totală: {{ stock.total_quantity }}</p>
+        <p class="text-gray-600" style="text-transform: none;">Cantitate disponibilă: {{ stock.available_quantity  or "Stoc epuizat"}}</p>
+        <p class="text-gray-600" style="text-transform: none;">Cantitate împrumutată: {{ stock.borrowed_quantity }}</p>
+        <p class="text-gray-600" style="text-transform: none;">Total împrumuturi: {{ stock.total_borrowed }}</p>
     </div>
     <div class="bg-white mt-4 p-6 rounded shadow">
         <h2 class="text-xl font-semibold mb-2">Tranzacții</h2>
@@ -24,6 +24,7 @@
                 <thead>
                     <tr>
                         <th class="border px-4 py-2">ID Utilizator</th>
+                        <th class="border px-4 py-2">Nume</th>
                         <th class="border px-4 py-2">Data Împrumutului</th>
                         <th class="border px-4 py-2">Data Returnării</th>
                         <th class="border px-4 py-2">Acțiune</th>
@@ -33,8 +34,9 @@
                     {% for trans in trans %}
                         <tr>
                             <td class="py-2 px-4 border border-gray-200"><a href="/view_member/{{trans.member_id}}"  class ="text-blue-500" title="Afișează mai multe detalii">{{ trans.member_id }}</a></td>
+                            <td class="py-2 px-4 border border-gray-200"><a href="/view_member/{{trans.member_name}}"  class ="text-blue-500" title="Afișează mai multe detalii">{{ trans.member_name }}</a></td>
                             <td class="border px-4 py-2">{{ trans.issue_date.date() }}</td>
-                            <td class="border px-4 py-2">{{ trans.return_date or 'Nereturnată încă' }}</td>
+                            <td class="border px-4 py-2" style="text-transform: none;">{{ trans.return_date or 'Nereturnată încă' }}</td>
                             <td class="py-2 px-4 border border-gray-200"><a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href ="/returnbook/{{trans.id}}">Gestionează</a></td>
                         </tr>
                     {% endfor %}

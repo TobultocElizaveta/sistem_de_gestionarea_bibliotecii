@@ -272,13 +272,11 @@ def issue_book():
         member_query = request.form['mk']
         book_query = request.form['bk']
 
-        # Caută membru după ID sau nume (case-insensitive)
         mem = db.session.query(Member).filter(
             (Member.id.like(f'%{member_query}%')) |
             (Member.name.ilike(f'%{member_query}%'))
         ).first()
 
-        # Caută carte după ID, titlu sau ISBN (case-insensitive)
         book = db.session.query(Book, Stock).join(Stock).filter(
             (Book.id.like(f'%{book_query}%')) |
             (Book.title.ilike(f'%{book_query}%')) |
@@ -292,7 +290,7 @@ def issue_book():
             flash("Nu s-au găsit rezultate potrivite.", "error")
             return redirect('/issuebook')
 
-    return render_template('issuebook.html')
+    return render_template('issuebook.html', member=None, book=None, debt=0)
 
 @app.route('/issuebookconfirm', methods=['GET', 'POST'])
 def issue_book_confirm():
