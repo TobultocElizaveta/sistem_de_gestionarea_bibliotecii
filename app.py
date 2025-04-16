@@ -162,21 +162,42 @@ def book_list():
 
     return render_template('view_books.html', books=books, page_range=page_range, genres=genres)
 
-@app.route('/view_members', methods=['GET','POST'])
+@app.route('/view_members', methods=['GET', 'POST'])
 def member_list():
-    if request.method == 'POST':
-        search = request.form.get('search')
-        member = db.session.query(Member).filter(Member.name.like(f'%{search}%')).all()
-    else:
-        member=db.session.query(Member).all()
+    page = request.args.get('page', 1, type=int)
+    per_page = 15  
 
-    return render_template('view_members.html', member=member)
+    search = request.form.get('search') if request.method == 'POST' else None
+
+    members_query = db.session.query(Member)
+
+    if search:
+        members_query = members_query.filter(Member.name.like(f'%{search}%'))
+
+    members = members_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    page_range = []
+    if members.page > 2:
+        page_range.append(1)
+
+    for i in range(max(1, members.page - 1), min(members.page + 2, members.pages) + 1):
+        if i not in page_range:
+            page_range.append(i)
+
+    if members.page > 3:
+        page_range.insert(1, '...')
+
+    if members.page < members.pages - 2:
+        page_range.append('...')
+        page_range.append(members.pages)
+
+    return render_template('view_members.html', members=members, page_range=page_range)
 
 @app.route('/edit_book/<int:id>', methods=['GET', 'POST'])
 def edit_book(id):
     book = Book.query.get(id)
     stock = Stock.query.get(book.id)
-    genres = Genre.query.all()  # Preia toate genurile din baza de date
+    genres = Genre.query.all()  
 
     try:
         if request.method == 'POST':
