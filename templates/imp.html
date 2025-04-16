@@ -20,6 +20,7 @@
         <th class="px-4 py-2 border">Titlu</th>
         <th class="px-4 py-2 border">Autor</th>
         <th class="px-4 py-2 border">ISBN</th>
+        <th class="px-4 py-2 border">Acțiune</th>
       </tr>
     </thead>
     <tbody id="booksTableBody">
@@ -29,6 +30,11 @@
         <td class="px-4 py-2 border">{{ book.title }}</td>
         <td class="px-4 py-2 border">{{ book.author }}</td>
         <td class="px-4 py-2 border">{{ book.isbn }}</td>
+        <td class="px-4 py-2 border">
+          <form action="{{ url_for('return_book', book_id=book.id) }}" method="POST">
+            <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Returnează</button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -50,4 +56,5 @@
   });
 </script>
 {% endblock content %}
+
 

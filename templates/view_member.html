@@ -16,22 +16,27 @@
                 <thead>
                     <tr>
                         <th class="border px-4 py-2">ID</th>
+                        <th class="border px-4 py-2">Titlu</th>
+                        <th class="border px-4 py-2">Autor</th>
+                        <th class="border px-4 py-2">ISBN</th>
                         <th class="border px-4 py-2">Data Împrumutului</th>
                         <th class="border px-4 py-2">Data Returnării</th>
-                        <th class="border px-4 py-2">Acțiune</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
-                    {% for trans in trans %}
-                        <tr>
-                            <td class="border px-4 py-2"><a class="text-green-500" href="/returnbook/{{trans.id}}">{{ trans.id }}</a></td>
-                            <td class="border px-4 py-2">{{ trans.issue_date.date() }}</td>
-                            <td class="border px-4 py-2">{{ trans.return_date or 'Neînchis încă' }}</td>
-                            <td class="py-2 px-4 border border-gray-200"><a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="/returnbook/{{trans.id}}">Gestionează</a></td>
-                        </tr>
+                    {% for t, book in trans %}
+                    <tr>
+                        <td class="border px-4 py-2"><a class="text-green-500" href="/returnbook/{{ t.id }}">{{ t.id }}</a></td>
+                        <td class="border px-4 py-2">{{ book.title }}</td>
+                        <td class="border px-4 py-2">{{ book.author }}</td>
+                        <td class="border px-4 py-2">{{ book.isbn }}</td>
+                        <td class="border px-4 py-2">{{ t.issue_date.date() }}</td>
+                        <td class="border px-4 py-2">{{ t.return_date or 'Neînchis încă' }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table>        
         {% else %}
             <p class="text-gray-600">Nu au fost găsite tranzacții pentru acest membru.</p>
         {% endif %}

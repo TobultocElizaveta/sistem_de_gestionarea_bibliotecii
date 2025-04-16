@@ -1,7 +1,7 @@
 from flask import Flask,render_template,request,redirect,flash,url_for,jsonify
 from flask_migrate import Migrate
 from models import db,Book,Member,Transaction,Stock,Charges,Genre
-import datetime
+from datetime import datetime
 import requests 
 from sqlalchemy import desc,or_
 from sqlalchemy.exc import IntegrityError,NoResultFound
@@ -143,7 +143,7 @@ def book_list():
 
     books = books_query.paginate(page=page, per_page=per_page, error_out=False)
 
-    # Pagination logic
+
     page_range = []
     if books.page > 2:
         page_range.append(1)
@@ -260,10 +260,10 @@ def view_book(id):
 
 @app.route('/view_member/<int:id>')
 def view_member(id):
-    member=Member.query.get(id)
-    transaction=Transaction.query.filter_by(member_id=member.id).all()
-    dbt=calculate_dbt(member)
-    return render_template('view_member.html',member=member,trans=transaction,debt=dbt)
+    member = Member.query.get(id)
+    transaction = db.session.query(Transaction, Book).join(Book).filter(Transaction.member_id == member.id).all()
+    dbt = calculate_dbt(member)
+    return render_template('view_member.html', member=member, trans=transaction, debt=dbt)
 
 
 def calculate_dbt(member):
@@ -366,13 +366,20 @@ def view_borrowings():
 
     return render_template('transactions.html', trans=transactions)
 
-@app.route('/returnbook/<int:id>', methods=['GET', 'POST'])
-def return_book(id):
-    transaction = db.session.query(Transaction, Member, Book).join(Book).join(Member).filter(Transaction.id == id).first()
-    rent=calculate_rent(transaction)
-    print(rent)
-    return render_template("returnbook.html", trans=transaction,rent=rent)
+@app.route('/return_book/<int:book_id>', methods=['POST'])
+def return_book(book_id):
+    stock = Stock.query.filter_by(book_id=book_id).first()
+    transaction = Transaction.query.filter_by(book_id=book_id, return_date=None).order_by(Transaction.issue_date.desc()).first()
 
+    if stock and transaction:
+        stock.available_quantity += 1
+        stock.borrowed_quantity -= 1
+
+        transaction.return_date = datetime.now()
+
+        db.session.commit()
+
+    return redirect(url_for('imp'))
 
 @app.route('/returnbookconfirm', methods=['POST'])
 def return_book_confirm():
