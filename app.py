@@ -3,8 +3,8 @@ from flask_migrate import Migrate
 from models import db,Book,Member,Transaction,Stock,Charges,Genre
 import datetime
 import requests 
-from sqlalchemy import desc
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import desc,or_
+from sqlalchemy.exc import IntegrityError,NoResultFound
 
 
 app=Flask(__name__)
@@ -266,18 +266,32 @@ def calculate_dbt(member):
             dbt += days_difference * charge.rentfee
     return dbt
 
-@app.route('/issuebook',methods=['GET','POST'])
+@app.route('/issuebook', methods=['GET', 'POST'])
 def issue_book():
-    if request.method=="POST":
-        memberid=request.form['mk']
-        title=request.form['bk']
-    
-        book = db.session.query(Book, Stock).join(Stock).filter(Book.title.like(f'%{title}%')).first() or db.session.query(Book, Stock).join(Stock).filter(Book.id.like(title)).first()
-        print(book)
-        mem=db.session.query(Member).get(memberid)
-        dbt=calculate_dbt(mem)
-        return render_template('issuebook.html',book=book,member=mem,debt=dbt)
-    
+    if request.method == "POST":
+        member_query = request.form['mk']
+        book_query = request.form['bk']
+
+        # Caută membru după ID sau nume (case-insensitive)
+        mem = db.session.query(Member).filter(
+            (Member.id.like(f'%{member_query}%')) |
+            (Member.name.ilike(f'%{member_query}%'))
+        ).first()
+
+        # Caută carte după ID, titlu sau ISBN (case-insensitive)
+        book = db.session.query(Book, Stock).join(Stock).filter(
+            (Book.id.like(f'%{book_query}%')) |
+            (Book.title.ilike(f'%{book_query}%')) |
+            (Book.isbn.like(f'%{book_query}%'))
+        ).first()
+
+        if mem and book:
+            dbt = calculate_dbt(mem)
+            return render_template('issuebook.html', book=book, member=mem, debt=dbt)
+        else:
+            flash("Nu s-au găsit rezultate potrivite.", "error")
+            return redirect('/issuebook')
+
     return render_template('issuebook.html')
 
 @app.route('/issuebookconfirm', methods=['GET', 'POST'])
@@ -306,6 +320,22 @@ def issue_book_confirm():
 
     return render_template('issuebook.html')
 
+@app.route('/add_member', methods=['GET', 'POST'])
+def add_member():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email').strip().lower()
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+
+        new_member = Member(name=name, email=email, phone=phone, address=address)
+
+        db.session.add(new_member)
+        db.session.commit()
+
+        flash('Utilizator adăugat cu succes!', 'success')
+        return redirect(url_for('add_member'))
+    return render_template('add_member.html')
 
 @app.route('/transactions', methods=['GET', 'POST'])
 def view_borrowings():

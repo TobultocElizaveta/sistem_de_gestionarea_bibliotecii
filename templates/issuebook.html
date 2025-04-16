@@ -12,8 +12,8 @@
                 <input type="text" name="mk" id="mk" class="w-full border rounded p-2 mb-2" required>
             </div>
             <div class="w-1/2">
-                <label for="bk" class="block text-sm font-medium text-gray-700">Caută Carte după ID sau Titlu:</label>
-                <input type="text" name="bk" id="bk" class="w-full border rounded p-2 mb-2" required>
+                <label for="bk" class="block text-sm font-medium text-gray-700">Caută Carte după ID, Titlu sau ISBN:</label>
+                <input type="text" name="bk" id="bk"  class="w-full border rounded p-2 mb-2" required>
             </div>
         </div>
         <input type="submit" class="btn btn-primary" value="Caută">
@@ -26,7 +26,7 @@
             <h2 class="text-xl font-semibold mb-2">{{ member.name }}</h2>
             <p class="text-gray-600">{{ member.address }}</p>
             <p class="text-gray-600">{{ member.phone }}</p>
-            <p class="text-gray-600">{{ member.email }}</p>
+            <p class="text-gray-600" style="text-transform: none;">{{ member.email }}</p>
             <p class="text-gray-600">Datorie: 
                 {% if debt > 450 %}
                     <div class="alert alert-error mb-5">{{ debt }}<div>
@@ -46,7 +46,7 @@
             <p class="text-gray-600">{{ book.Book.author }}</p>
             <p class="text-gray-600">{{ book.Book.isbn }}</p>
             <p class="text-gray-600">{{ book.Book.publisher }}</p>
-            <p class="text-gray-600">Număr de Pagini: {{ book.Book.page }}</p>
+            <p class="text-gray-600">Anul: {{ book.Book.page }}</p>
         </div>
         <div class="bg-white mt-4 p-6 rounded shadow">
             <h2 class="text-xl font-semibold mb-2">Detalii Stoc</h2>
