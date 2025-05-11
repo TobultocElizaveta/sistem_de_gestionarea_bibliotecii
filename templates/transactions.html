@@ -1,63 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
-
-
-<div class="overflow-x-auto rounded-lg shadow w-full"> 
+<div class="overflow-x-auto rounded-lg shadow w-full min-h-screen flex flex-col"> 
     <div class="container mx-auto py-8">
-        <center><h1 class="text-2xl font-semibold mb-4">Lista Tranzacțiilor</h1>
+        <center>
+            <h1 class="text-2xl font-semibold mb-4">Lista Tranzacțiilor</h1>
 
-         <form class="mb-4" method="post">
-            <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" placeholder="Caută după numele membrului sau ID-ul tranzacției">
-            <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
-        </form></center>
+            <form class="mb-6 flex justify-center items-center gap-4" method="post">
+                <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" placeholder="Caută după numele membrului sau ID-ul tranzacției" style="width: 300px;">
+                <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
+            </form>
+        </center>
+
         <table class="w-full bg-white border border-gray-200 border-collapse">
-          <thead>
-              <tr class="bg-gray-100">
-                  <th class="py-2 px-4 text-left border border-gray-200">ID Tranzacție</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Carte</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Utilizator</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Data Împrumutului</th>
-                  <th class="py-2 px-4 text-left border border-gray-200">Data Returnării</th>
-
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="py-2 px-4 text-left border border-gray-200">ID Tranzacție</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Carte</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Utilizator</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Data Împrumutului</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Data Returnării</th>
                 </tr>
-          </thead>
-          <tbody>
-            {% for trans, member, book in trans.items %}
-              <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
-                      <td class="py-2 px-4 border border-gray-200">{{ trans.id }}</td>
-                      <td class="py-2 px-4 border border-gray-200"><a href="/view_book/{{book.id}}" class="text-green-500" title="Afișează mai multe detalii">{{ book.title }}</a></td>
-                      <td class="py-2 px-4 border border-gray-200"><a href="/view_member/{{member.id}}" class="text-blue-500" title="Afișează mai multe detalii">{{ member.name }}</a></td>
-                      <td class="py-2 px-4 border border-gray-200">{{ trans.issue_date.date() }}</td>
-                      <td class="py-2 px-4 border border-gray-200">{% if trans.return_date %}{{ trans.return_date.date() }}{% else %}<p class="text-red-500">Ne-returnată</p>{% endif %}</td>
-
-                    </tr>
-              {% endfor %}
-          </tbody>
-      </table>
-       <!-- Pagination controls -->
-            <div class="mt-4 flex justify-center items-center">
-                {% if trans.has_prev %}
-                    <a href="{{ url_for('view_borrowings', page=trans.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
-                {% endif %}
-
-                <div class="mx-2 flex">
-                    {% for page_num in page_range %}
-                        {% if page_num == '...' %}
-                            <span class="px-4 py-2 text-gray-500">...</span>
+            </thead>
+            <tbody>
+                {% for trans, member, book in trans.items %}
+                <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
+                    <td class="py-2 px-4 border border-gray-200">{{ trans.id }}</td>
+                    <td class="py-2 px-4 border border-gray-200">
+                        <a href="/view_book/{{ book.id }}" class="text-green-500" title="Afișează mai multe detalii">{{ book.title }}</a>
+                    </td>
+                    <td class="py-2 px-4 border border-gray-200">
+                        <a href="/view_member/{{ member.id }}" class="text-blue-500" title="Afișează mai multe detalii">{{ member.name }}</a>
+                    </td>
+                    <td class="py-2 px-4 border border-gray-200">{{ trans.issue_date.date() }}</td>
+                    <td class="py-2 px-4 border border-gray-200">
+                        {% if trans.return_date %}
+                            {{ trans.return_date.date() }}
                         {% else %}
-                            <a href="{{ url_for('view_borrowings', page=page_num) }}" class="px-4 py-2 border border-gray-300 rounded mx-1 {{ 'bg-blue-500 text-white' if page_num == trans.page else 'text-blue-500' }} hover:bg-blue-600">
-                                {{ page_num }}
-                            </a>
+                            <p class="text-red-500">Ne-returnată</p>
                         {% endif %}
-                    {% endfor %}
-                </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                {% if trans.has_next %}
-                    <a href="{{ url_for('view_borrowings', page=trans.next_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Următoare</a>
-                {% endif %}
+    <!-- Pagination at the bottom -->
+    <div class="mt-auto py-4">
+        <div class="flex justify-center items-center">
+            {% if trans.has_prev %}
+                <a href="{{ url_for('view_borrowings', page=trans.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
+            {% endif %}
+
+            <div class="mx-2 flex">
+                {% for page_num in page_range %}
+                    {% if page_num == '...' %}
+                        <span class="px-4 py-2 text-gray-500">...</span>
+                    {% else %}
+                        <a href="{{ url_for('view_borrowings', page=page_num) }}" class="px-4 py-2 border border-gray-300 rounded mx-1 {{ 'bg-blue-500 text-white' if page_num == trans.page else 'text-blue-500' }} hover:bg-blue-600">
+                            {{ page_num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
             </div>
 
+            {% if trans.has_next %}
+                <a href="{{ url_for('view_borrowings', page=trans.next_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Următoare</a>
+            {% endif %}
+        </div>
     </div>
 </div>
-
 {% endblock %}

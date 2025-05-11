@@ -1,65 +1,71 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="overflow-x-auto rounded-lg shadow w-full">
+<div class="overflow-x-auto rounded-lg shadow w-full min-h-screen flex flex-col">
     <div class="container mx-auto py-8">
-        <center><h1 class="text-2xl font-semibold mb-4">Lista Membri</h1>
+        <center>
+            <h1 class="text-2xl font-semibold mb-4">Lista Membri</h1>
 
-       <form class="mb-4" method="post">
-          <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" placeholder="Căutare după Nume">
-          <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Căutare</button>
-      </form></center>
+            <form class="mb-4" method="post">
+                <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" placeholder="Căutare după Nume">
+                <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Căutare</button>
+            </form>
+        </center>
 
-      <table class="w-full bg-white border border-gray-200 border-collapse">
-        <thead>
-            <tr class="bg-gray-100">
-                <th class="py-2 px-4 text-left border border-gray-200">ID Utilizator</th>
-                <th class="py-2 px-4 text-left border border-gray-200">Nume</th>
-                <th class="py-2 px-4 text-left border border-gray-200">Email</th>
-                <th class="py-2 px-4 text-left border border-gray-200">Telefon</th>
-                <th class="py-2 px-4 text-left border border-gray-200">Adresă</th>
-                <th class="py-2 px-4 text-left border border-gray-200">Acțiune</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in members.items %}
-            <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
-                <td class="py-2 px-4 border border-gray-200">{{ i.id }}</td>
-                <td class="py-2 px-4 border border-gray-200"><a href="/view_member/{{i.id}}" class="text-green-500" title="Vezi mai multe detalii">{{ i.name }}</a></td>
-                <td class="py-2 px-4 border border-gray-200" style="text-transform: none;">{{ i.email }}</td>
-                <td class="py-2 px-4 border border-gray-200">{{ i.phone }}</td>
-                <td class="py-2 px-4 border border-gray-200">{{ i.address }}</td>
-                <td class="py-2 px-4 border border-gray-200">
-                  <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_member/{{i.id}}">Editează</a>
-                  <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_member/{{i.id}}" onclick="return confirm('Sigur doriți să ștergeți acest membru?')">Șterge</a>
-                </td>
-              </tr>
-            {% endfor %}
-        </tbody>
-      </table>
+        <table class="w-full bg-white border border-gray-200 border-collapse">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="py-2 px-4 text-left border border-gray-200">ID Utilizator</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Nume</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Email</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Telefon</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Adresă</th>
+                    <th class="py-2 px-4 text-left border border-gray-200">Acțiune</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in members.items %}
+                <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
+                    <td class="py-2 px-4 border border-gray-200">{{ i.id }}</td>
+                    <td class="py-2 px-4 border border-gray-200">
+                        <a href="/view_member/{{i.id}}" class="text-green-500" title="Vezi mai multe detalii">{{ i.name }}</a>
+                    </td>
+                    <td class="py-2 px-4 border border-gray-200" style="text-transform: none;">{{ i.email }}</td>
+                    <td class="py-2 px-4 border border-gray-200">{{ i.phone }}</td>
+                    <td class="py-2 px-4 border border-gray-200">{{ i.address }}</td>
+                    <td class="py-2 px-4 border border-gray-200">
+                        <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_member/{{i.id}}">Editează</a>
+                        <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_member/{{i.id}}" onclick="return confirm('Sigur doriți să ștergeți acest membru?')">Șterge</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-      <!-- Pagination controls -->
-      <div class="mt-4 flex justify-center items-center">
-          {% if members.has_prev %}
-              <a href="{{ url_for('member_list', page=members.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
-          {% endif %}
+    <!-- Pagination controls at bottom -->
+    <div class="mt-auto py-4">
+        <div class="flex justify-center items-center">
+            {% if members.has_prev %}
+                <a href="{{ url_for('member_list', page=members.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
+            {% endif %}
 
-          <div class="mx-2 flex">
-              {% for page_num in page_range %}
-                  {% if page_num == '...' %}
-                      <span class="px-4 py-2 text-gray-500">...</span>
-                  {% else %}
-                      <a href="{{ url_for('member_list', page=page_num) }}" class="px-4 py-2 border border-gray-300 rounded mx-1 {{ 'bg-blue-500 text-white' if page_num == members.page else 'text-blue-500' }} hover:bg-blue-600">
-                          {{ page_num }}
-                      </a>
-                  {% endif %}
-              {% endfor %}
-          </div>
+            <div class="mx-2 flex">
+                {% for page_num in page_range %}
+                    {% if page_num == '...' %}
+                        <span class="px-4 py-2 text-gray-500">...</span>
+                    {% else %}
+                        <a href="{{ url_for('member_list', page=page_num) }}" class="px-4 py-2 border border-gray-300 rounded mx-1 {{ 'bg-blue-500 text-white' if page_num == members.page else 'text-blue-500' }} hover:bg-blue-600">
+                            {{ page_num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
 
-          {% if members.has_next %}
-              <a href="{{ url_for('member_list', page=members.next_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Următoare</a>
-          {% endif %}
-      </div>
+            {% if members.has_next %}
+                <a href="{{ url_for('member_list', page=members.next_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Următoare</a>
+            {% endif %}
+        </div>
     </div>
 </div>
 

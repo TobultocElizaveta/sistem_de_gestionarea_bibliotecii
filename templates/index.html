@@ -74,7 +74,7 @@
             <tr>
                 <td class="border border-l-0 px-4 py-2">{{ transaction.id }}</td>
                 <td class="border border-l-0 px-4 py-2">{{ book.title }}</td>
-                <td class="border border-l-0 border-r-0 px-4 py-2">{{ transaction.issue_date }} minute în urmă</td>
+                <td class="border border-l-0 border-r-0 px-4 py-2">{{ transaction.issue_date.date() }}</td>
             </tr>
             {% endfor %}
         </tbody>
