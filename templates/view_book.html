@@ -33,17 +33,17 @@
                     {% for t in trans %}
                         <tr>
                             <td class="py-2 px-4 border border-gray-200">
-                                <a href="/view_member/{{ t.member_id }}" class="text-blue-500" title="Afișează mai multe detalii">
+                                <a href="/view_member/{{ t.member_id }}" title="Afișează mai multe detalii">
                                     {{ t.member_id }}
                                 </a>
                             </td>
                             <td class="py-2 px-4 border border-gray-200">
-                                <a href="/view_member/{{ t.member_id }}" class="text-blue-500" title="Afișează mai multe detalii">
+                                <a href="/view_member/{{ t.member_id }}" title="Afișează mai multe detalii">
                                     {{ t.member_name }}
                                 </a>
                             </td>
                             <td class="border px-4 py-2">{{ t.issue_date.date() }}</td>
-                            <td class="border px-4 py-2" style="text-transform: none;">{{ t.return_date or 'Nereturnată încă' }}</td>
+                            <td class="border px-4 py-2" style="text-transform: none;">{{ t.return_date.date() or 'Nereturnată încă' }}</td>
                         </tr>
                         {% endfor %}
                 </tbody>

@@ -27,8 +27,8 @@
                 <tbody>
                     {% for t, book in trans %}
                     <tr>
-                        <td class="border px-4 py-2"><a class="text-green-500" href="/returnbook/{{ t.id }}">{{ t.id }}</a></td>
-                        <td class="border px-4 py-2">{{ book.title }}</td>
+                        <td class="border px-4 py-2">{{ t.id }}</td>
+                        <td class="border px-4 py-2"><a href="/view_book/{{ book.id }}">{{ book.title }}</a></td>
                         <td class="border px-4 py-2">{{ book.author }}</td>
                         <td class="border px-4 py-2">{{ book.isbn }}</td>
                         <td class="border px-4 py-2">{{ t.issue_date.date() }}</td>
