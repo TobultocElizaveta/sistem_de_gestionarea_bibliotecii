@@ -1,26 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="overflow-x-auto rounded-lg shadow w-full">
-    <div class="container mx-auto py-8">
+<div class="overflow-x-auto rounded-lg shadow w-full min-h-screen flex flex-col">
+    <div class="container mx-auto py-2">
         <center>
             <h1 class="text-2xl font-semibold mb-4">Lista Cărților</h1>
 
             <form method="post" class="mb-6 flex justify-center items-center gap-4">
-                <!-- Căutare generală -->
                 <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" style="width: 300px;" placeholder="Titlu, Autor, ISBN">
-            
-                <!-- Căutare gen cu datalist -->
                 <input type="text" name="genre_name" class="px-2 py-1 border border-gray-300 rounded" style="width: 200px;" list="genre-options" placeholder="Genul cărții">
                 <datalist id="genre-options">
                     {% for genre in genres %}
                         <option value="{{ genre.name }}">
                     {% endfor %}
                 </datalist>
-                            
-                    <!-- Butonul de căutare -->
-                    <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
-                </div>
+                <button type="submit" class="ml-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Caută</button>
             </form>
         </center>
 
@@ -57,14 +51,15 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
 
-        <!-- Pagination controls -->
-        <div class="mt-4 flex justify-center items-center">
+    <!-- Pagination controls (at bottom) -->
+    <div class="mt-auto py-4">
+        <div class="flex justify-center items-center">
             {% if books.has_prev %}
                 <a href="{{ url_for('book_list', page=books.prev_num) }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Precedentă</a>
             {% endif %}
 
-            <!-- Numeric page buttons with "..." -->
             <div class="mx-2 flex">
                 {% for page_num in page_range %}
                     {% if page_num == '...' %}
@@ -83,6 +78,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
+
 
