@@ -34,7 +34,7 @@ class User(db.Model, UserMixin):  # autentificare
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-class Member(db.Model):  # cititori
+class Member(db.Model, UserMixin):  # cititori
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, index=True)
     email = db.Column(db.String(100), unique=True, nullable=False, index=True)
