@@ -55,7 +55,11 @@ login_manager.login_view = 'login'  # redirect to login page if not logged in
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    # Încarcă din ambele tabele
+    user = User.query.get(int(user_id))
+    if not user:
+        user = Member.query.get(int(user_id))
+    return user
 
 @app.route('/admin/dashboard')
 @role_required('admin')  # Doar adminii pot accesa
@@ -66,6 +70,15 @@ def admin_dashboard():
 @role_required('librarian')  # Doar bibliotecarii pot accesa
 def librarian_dashboard():
     return render_template('librarian_dashboard.html')
+
+@app.route('/member/dashboard')
+@login_required
+def member_dashboard():
+    if not isinstance(current_user, Member):
+        flash('Acces permis doar membrilor!', 'error')
+        return redirect(url_for('index'))
+    
+    return render_template('member_dashboard.html', member=current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -97,6 +110,25 @@ def logout():
     logout_user()
     flash('Ai fost delogat cu succes.', 'success')
     return redirect(url_for('login'))
+
+@app.route('/member/login', methods=['GET', 'POST'])
+def member_login():
+    if current_user.is_authenticated:
+        return redirect(url_for('member_dashboard'))
+        
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        member = Member.query.filter_by(email=email).first()
+        
+        if member and member.check_password(password):
+            login_user(member)
+            flash('Autentificare reușită!', 'success')
+            return redirect(url_for('member_dashboard'))
+        else:
+            flash('Email sau parolă incorectă!', 'error')
+    
+    return render_template('member_login.html')
 
 @app.route('/add_librarian', methods=['GET', 'POST'])
 @role_required(role='admin')
@@ -503,25 +535,34 @@ def issue_book_confirm():
     return render_template('issuebook.html')
 
 @app.route('/add_member', methods=['GET', 'POST'])
-@login_required
-@login_required
+@role_required('admin')
 def add_member():
-    if current_user.role != 'admin':
-        flash('Doar Admin pot adăuga utilizatori!', 'error')
-        return redirect(url_for('index'))
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
+        phone = request.form['phone']
+        address = request.form['address']
+        role = request.form.get('role', 'student')
+        
         if Member.query.filter_by(email=email).first():
             flash('Emailul este deja folosit.', 'error')
             return redirect(url_for('add_member'))
-        student = Member(name=name, email=email, role='student')
-        student.set_password(password)
-        db.session.add(student)
+            
+        member = Member(
+            name=name,
+            email=email,
+            phone=phone,
+            address=address,
+            role=role
+        )
+        member.set_password(password)
+        
+        db.session.add(member)
         db.session.commit()
-        flash('Utilizator adăugat cu succes!', 'success')
-        return redirect(url_for('index'))
+        flash(f'{role.capitalize()} adăugat cu succes!', 'success')
+        return redirect(url_for('member_list'))
+    
     return render_template('add_member.html')
 
 @app.route('/transactions', methods=['GET', 'POST'])

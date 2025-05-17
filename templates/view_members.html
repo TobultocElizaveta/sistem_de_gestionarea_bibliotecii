@@ -4,7 +4,7 @@
 <div class="overflow-x-auto rounded-lg shadow w-full min-h-screen flex flex-col">
     <div class="container mx-auto py-8">
         <center>
-            <h1 class="text-2xl font-semibold mb-4">Lista Membri</h1>
+            <h1 class="text-2xl font-semibold mb-4">Lista Utilizatori</h1>
 
             <form class="mb-4" method="post">
                 <input type="text" name="search" class="px-2 py-1 border border-gray-300 rounded" placeholder="Căutare după Nume">
@@ -20,6 +20,7 @@
                     <th class="py-2 px-4 text-left border border-gray-200">Email</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Telefon</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Adresă</th>
+                    <th class="py-2 px-4">Rol</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Acțiune</th>
                 </tr>
             </thead>
@@ -33,6 +34,7 @@
                     <td class="py-2 px-4 border border-gray-200" style="text-transform: none;">{{ i.email }}</td>
                     <td class="py-2 px-4 border border-gray-200">{{ i.phone }}</td>
                     <td class="py-2 px-4 border border-gray-200">{{ i.address }}</td>
+                    <td class="py-2 px-4">{{ 'Elev' if i.role == 'student' else 'Profesor' }}</td>
                     <td class="py-2 px-4 border border-gray-200">
                         <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_member/{{i.id}}">Editează</a>
                         <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_member/{{i.id}}" onclick="return confirm('Sigur doriți să ștergeți acest membru?')">Șterge</a>

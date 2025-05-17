@@ -1,82 +1,100 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="flex justify-center items-center bg-gray-100"> 
-    <div class="bg-white p-8 rounded shadow-md w-3/4">
-        <h1 class="text-2xl mb-4">Adaugă Utilizator</h1>
+<div class="flex justify-center items-center bg-gray-100 min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-xl">
+        <h1 class="text-2xl mb-6 font-semibold text-center">Adaugă Utilizator</h1>
+
         <form method="POST" action="{{ url_for('add_member') }}" onsubmit="return validateForm()">
             <label for="name" class="block mb-2">Nume:</label>
             <input type="text" name="name" id="name" class="w-full border rounded p-2 mb-2">
-            <span id="name-error" class="text-red-500"></span><br>
+            <span id="name-error" class="text-red-500 text-sm"></span>
 
-            <label for="email" class="block mb-2">Email:</label>
+            <label for="email" class="block mb-2 mt-4">Email:</label>
             <input type="text" name="email" id="email" class="w-full border rounded p-2 mb-2" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
-            <span id="email-error" class="text-red-500"></span><br>
+            <span id="email-error" class="text-red-500 text-sm"></span>
 
-            <label for="phone" class="block mb-2">Telefon:</label>
+            <label for="phone" class="block mb-2 mt-4">Telefon:</label>
             <input type="text" name="phone" id="phone" class="w-full border rounded p-2 mb-2">
-            <span id="phone-error" class="text-red-500"></span><br>
+            <span id="phone-error" class="text-red-500 text-sm"></span>
 
-            <label for="address" class="block mb-2">Adresă:</label>
-            <input type="address" name="address" id="address" class="w-full border rounded p-2 mb-2">
-            <span id="address-error" class="text-red-500"></span><br>
+            <label for="address" class="block mb-2 mt-4">Adresă:</label>
+            <input type="text" name="address" id="address" class="w-full border rounded p-2 mb-2">
+            <span id="address-error" class="text-red-500 text-sm"></span>
 
-            <button type="submit" class="bg-blue-500 text-white rounded p-2">ADAUGĂ</button>
+            <label for="password" class="block mb-2 mt-4">Parolă:</label>
+            <input type="password" name="password" id="password" class="w-full border rounded p-2 mb-2">
+            <span id="password-error" class="text-red-500 text-sm"></span>
+
+            <label for="role" class="block mb-2 mt-4">Rol:</label>
+            <select name="role" id="role" class="w-full border rounded p-2 mb-4">
+                <option value="student">Elev</option>
+                <option value="teacher">Profesor</option>
+            </select>
+
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded w-full">ADAUGĂ</button>
         </form>
     </div>
 </div>
+
 <script>
     function isValidEmail(email) {
         var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
         return emailPattern.test(email);
     }
-    
+
     function isValidPhone(phone) {
-        var phonePattern = /^\d{10}$/; 
+        var phonePattern = /^\d{10}$/;
         return phonePattern.test(phone);
     }
-    
+
     function clearValidationMessages() {
         document.getElementById("name-error").textContent = "";
         document.getElementById("email-error").textContent = "";
         document.getElementById("phone-error").textContent = "";
         document.getElementById("address-error").textContent = "";
+        document.getElementById("password-error").textContent = "";
     }
-    
+
     function validateForm() {
         clearValidationMessages();
-    
+
         var name = document.getElementById("name").value;
         var email = document.getElementById("email").value;
         var phone = document.getElementById("phone").value;
         var address = document.getElementById("address").value;
-    
+        var password = document.getElementById("password").value;
+
         var isValid = true;
-    
+
         if (name.trim() === "") {
             document.getElementById("name-error").textContent = "Numele este obligatoriu.";
             isValid = false;
         }
-    
+
         if (email.trim() === "") {
             document.getElementById("email-error").textContent = "Emailul este obligatoriu.";
             isValid = false;
         } else if (!isValidEmail(email)) {
-            document.getElementById("email-error").textContent = "Te rog să introduci o adresă de email validă.";
+            document.getElementById("email-error").textContent = "Te rog să introduci un email valid.";
             isValid = false;
         }
-    
+
         if (phone.trim() !== "" && !isValidPhone(phone)) {
-            document.getElementById("phone-error").textContent = "Te rog să introduci un număr de telefon valid.";
+            document.getElementById("phone-error").textContent = "Număr de telefon invalid. Format: 10 cifre.";
             isValid = false;
         }
-    
+
         if (address.trim() === "") {
             document.getElementById("address-error").textContent = "Adresa este obligatorie.";
             isValid = false;
         }
-    
+
+        if (password.trim() === "") {
+            document.getElementById("password-error").textContent = "Parola este obligatorie.";
+            isValid = false;
+        }
+
         return isValid;
     }
 </script>
-    
-{% endblock%}
+{% endblock %}
