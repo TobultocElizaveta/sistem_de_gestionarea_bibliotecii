@@ -1,20 +1,145 @@
 import datetime
 from flask import Flask,render_template,request,redirect,flash,url_for,jsonify
 from flask_migrate import Migrate
-from models import db,Book,Member,Transaction,Stock,Charges,Genre
+from models import db,Book,Member,Transaction,Stock,Charges,Genre,User
 from datetime import datetime, timedelta
 import requests 
 from sqlalchemy import desc,or_
 from sqlalchemy.exc import IntegrityError,NoResultFound
+from functools import wraps
+from flask import abort
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask import session
+from werkzeug.security import generate_password_hash, check_password_hash
 
+
+def role_required(role=None):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                flash('Autentifică-te mai întâi.', 'warning')
+                return redirect(url_for('login'))
+
+            if role and current_user.role != role:
+                flash('Acces interzis!', 'danger')
+                return redirect(url_for('index'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///library.db'
 app.config['SECRET_KEY']='af9d4e10d142994285d0c1f861a70925'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate=Migrate(app,db)
 
+with app.app_context():
+    db.create_all()
+    # Verifică dacă există deja un admin cu emailul ăsta
+    if not User.query.filter_by(email="admin2@biblioteca.com").first():
+        admin2 = User(
+            username="Admin Secundar",
+            email="admin2@biblioteca.com",
+            phone="0987654321",
+            role="admin"
+        )
+        admin2.set_password("parola123")
+        db.session.add(admin2)
+        db.session.commit()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # redirect to login page if not logged in
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/admin/dashboard')
+@role_required('admin')  # Doar adminii pot accesa
+def admin_dashboard():
+    return render_template('admin_dashboard.html')
+
+@app.route('/librarian/dashboard')
+@role_required('librarian')  # Doar bibliotecarii pot accesa
+def librarian_dashboard():
+    return render_template('librarian_dashboard.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+        
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        
+        if user and user.check_password(password):
+            login_user(user)
+            flash('Autentificare reușită!', 'success')
+            
+            # Redirect based on role
+            if user.role == 'admin':
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('librarian_dashboard'))
+        else:
+            flash('Email sau parolă incorectă!', 'error')
+    
+    return render_template('login.html', now=datetime.now())
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Ai fost delogat cu succes.', 'success')
+    return redirect(url_for('login'))
+
+@app.route('/add_librarian', methods=['GET', 'POST'])
+@role_required(role='admin')
+def add_librarian():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        phone = request.form.get('phone', '')
+        
+        # Check if email already exists
+        if User.query.filter_by(email=email).first():
+            flash('Acest email este deja înregistrat!', 'error')
+            return redirect(url_for('add_librarian'))
+        
+        # Create new librarian user
+        librarian = User(
+            username=username,
+            email=email,
+            phone=phone,
+            role='librarian'
+        )
+        librarian.set_password(password)
+        
+        try:
+            db.session.add(librarian)
+            db.session.commit()
+            flash('Bibliotecar adăugat cu succes!', 'success')
+            return redirect(url_for('view_users'))  # You'll need to create this route
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Eroare la adăugarea bibliotecarului: {str(e)}', 'error')
+    
+    return render_template('add_librarian.html')
+
+@app.route('/view_users')
+@role_required(role='admin')
+def view_users():
+    users = User.query.all()
+    return render_template('view_users.html', users=users)
+
 @app.route('/')
+@login_required
 def index():
     borrowed_books = db.session.query(Transaction).filter(Transaction.return_date == None).count()
     total_books = Book.query.count()
@@ -28,7 +153,7 @@ def calculate_total_rent_current_month():
     current_month = datetime.now().month
     current_year = datetime.now().year
     start_date = datetime(current_year, current_month, 1)
-    end_date = datetime(current_year, current_month + 1, 1) - timedelta(days=1)  # Используй timedelta без 'datetime.'
+    end_date = datetime(current_year, current_month + 1, 1) - timedelta(days=1)  
 
     total_rent = db.session.query(db.func.sum(Transaction.rent_fee)).filter(
         Transaction.issue_date >= start_date,
@@ -38,6 +163,7 @@ def calculate_total_rent_current_month():
     return total_rent if total_rent else 0
 
 @app.route('/init_genres')
+@login_required 
 def init_genres():
     genres = ['Roman', 'Istorie', 'Geografie', 'Știință', 'Ficțiune', 'Poezie']
     for name in genres:
@@ -47,6 +173,7 @@ def init_genres():
     return 'Genurile au fost adăugate.'
 
 @app.route('/add_genre', methods=['GET', 'POST'])
+@login_required
 def add_genre():
     if request.method == 'POST':
         genre_name = request.form.get('genre_name')
@@ -64,6 +191,7 @@ def add_genre():
     return render_template('add_genre.html')
 
 @app.route('/add_book', methods=['GET', 'POST'])
+@login_required
 def add_book():
     genres = Genre.query.all()
 
@@ -122,6 +250,7 @@ def add_book():
     return render_template('add_book.html', genres=genres)
 
 @app.route('/view_books', methods=['GET', 'POST'])
+@login_required
 def book_list():
     page = request.args.get('page', 1, type=int)
     per_page = 15
@@ -166,6 +295,7 @@ def book_list():
     return render_template('view_books.html', books=books, page_range=page_range, genres=genres)
 
 @app.route('/view_members', methods=['GET', 'POST'])
+@login_required
 def member_list():
     page = request.args.get('page', 1, type=int)
     per_page = 15  
@@ -197,6 +327,7 @@ def member_list():
     return render_template('view_members.html', members=members, page_range=page_range)
 
 @app.route('/edit_book/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_book(id):
     book = Book.query.get(id)
     stock = Stock.query.get(book.id)
@@ -225,6 +356,7 @@ def edit_book(id):
     return render_template('edit_book.html', book=book, stock=stock, genres=genres)
 
 @app.route('/edit_member/<int:id>',methods=['GET','POST'])
+@login_required
 def edit_member(id):
     member=Member.query.get(id)
     try:
@@ -241,6 +373,7 @@ def edit_member(id):
     return render_template('edit_member.html',member=member)
 
 @app.route('/delete_member/<int:id>',methods=['GET','POST'])
+@login_required
 def delete_member(id):
     try:
         member=Member.query.get(id)
@@ -252,6 +385,7 @@ def delete_member(id):
     return redirect('/view_members')
 
 @app.route('/delete_book/<int:id>',methods=['GET','POST'])
+@login_required
 def delete_book(id):
     try:
         book=Book.query.get(id)
@@ -265,6 +399,7 @@ def delete_book(id):
     return redirect('/view_members')
 
 @app.route('/view_book/<int:id>')
+@login_required
 def view_book(id):
     book = Book.query.get(id)
     stock = Stock.query.filter_by(book_id=id).first()
@@ -284,6 +419,7 @@ def view_book(id):
     return render_template('view_book.html', book=book, trans=trans_data, stock=stock)
 
 @app.route('/view_member/<int:id>')
+@login_required
 def view_member(id):
     member = Member.query.get(id)
     transaction = db.session.query(Transaction, Book).join(Book).filter(Transaction.member_id == member.id).all()
@@ -291,22 +427,29 @@ def view_member(id):
     return render_template('view_member.html', member=member, trans=transaction, debt=dbt)
 
 
+from datetime import datetime, timedelta
+
 def calculate_dbt(member):
     transactions = Transaction.query.filter_by(member_id=member.id).all()
     dbt = 0
-
+    today = datetime.now().date()
 
     for transaction in transactions:
         if transaction.return_date is None:
-            due_date = transaction.issue_date + timedelta(days=14)  # calculăm data limită
-            if due_date < datetime.now():
-                days_difference = (datetime.now() - due_date).days
+            issue_date = transaction.issue_date.date()  # extrage doar data
+            due_date = issue_date + timedelta(days=14)
+            today = datetime.now().date()
+
+            if due_date < today:
+                days_difference = (today - due_date).days
                 charge = Book.query.get(transaction.book_id)
                 if charge:
                     dbt += days_difference * charge.rent_fee
+
     return dbt
 
 @app.route('/issuebook', methods=['GET', 'POST'])
+@login_required
 def issue_book():
     if request.method == "POST":
         member_query = request.form['mk']
@@ -333,6 +476,7 @@ def issue_book():
     return render_template('issuebook.html', member=None, book=None, debt=0)
 
 @app.route('/issuebookconfirm', methods=['GET', 'POST'])
+@login_required
 def issue_book_confirm():
     if request.method == "POST":
         memberid = request.form['memberid']
@@ -359,23 +503,29 @@ def issue_book_confirm():
     return render_template('issuebook.html')
 
 @app.route('/add_member', methods=['GET', 'POST'])
+@login_required
+@login_required
 def add_member():
+    if current_user.role != 'admin':
+        flash('Doar Admin pot adăuga utilizatori!', 'error')
+        return redirect(url_for('index'))
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email').strip().lower()
-        phone = request.form.get('phone')
-        address = request.form.get('address')
-
-        new_member = Member(name=name, email=email, phone=phone, address=address)
-
-        db.session.add(new_member)
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        if Member.query.filter_by(email=email).first():
+            flash('Emailul este deja folosit.', 'error')
+            return redirect(url_for('add_member'))
+        student = Member(name=name, email=email, role='student')
+        student.set_password(password)
+        db.session.add(student)
         db.session.commit()
-
         flash('Utilizator adăugat cu succes!', 'success')
-        return redirect(url_for('add_member'))
+        return redirect(url_for('index'))
     return render_template('add_member.html')
 
 @app.route('/transactions', methods=['GET', 'POST'])
+@login_required
 def view_borrowings():
     page = request.args.get('page', 1, type=int)
     per_page = 15
@@ -419,6 +569,7 @@ def view_borrowings():
     return render_template('transactions.html', trans=transactions, page_range=page_range)
 
 @app.route('/return_book/<int:book_id>', methods=['POST'])
+@login_required
 def return_book(book_id):
     stock = Stock.query.filter_by(book_id=book_id).first()
     transaction = Transaction.query.filter_by(book_id=book_id, return_date=None).order_by(Transaction.issue_date.desc()).first()
@@ -434,6 +585,7 @@ def return_book(book_id):
     return redirect(url_for('imp'))
 
 @app.route('/returnbookconfirm', methods=['POST'])
+@login_required
 def return_book_confirm():
     if request.method == "POST":
         id = request.form["id"]
@@ -462,6 +614,7 @@ def calculate_rent(transaction):
 API_BASE_URL = "https://frappe.io/api/method/frappe-library"
 
 @app.route('/import_book', methods=['GET'])
+@login_required
 def imp():
     borrowed_books = db.session.query(Book, Member).\
         select_from(Book).\
@@ -473,6 +626,7 @@ def imp():
     return render_template('imp.html', data=borrowed_books, title='Cărți împrumutate', num_books=len(borrowed_books))
 
 @app.route('/save_all_books', methods=['POST'])
+@login_required
 def save_all_books():
     data = request.json
 
@@ -506,6 +660,7 @@ def save_all_books():
     return redirect('/import_book')
 
 @app.route('/stockupdate/<int:id>',methods=['GET','POST'])
+@login_required
 def stock_update(id):
     stock,book=db.session.query(Stock,Book).join(Book).filter(Stock.book_id == id).first()
     if request.method=="POST":

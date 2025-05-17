@@ -48,7 +48,6 @@
             </div> 
 
             <div class="ml-2 capitalize flex ">
-              <h1 class="text-sm text-gray-800 font-semibold m-0 p-0 leading-none">Bibliotecar</h1>
               <i class="fad fa-chevron-down ml-2 text-xs leading-none"></i>
             </div>                        
           </button>
@@ -117,43 +116,65 @@
         Adăugare gen
       </a>
       <!-- end link -->
-      <a href="/import_book" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
-        <i class="fad fa-book text-xs mr-2"></i>
-        Returnare Carte
-      </a>
-      <!-- end link -->
+
       <!-- link -->
       <a href="/issuebook" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
         <i class="fad fa-book text-xs mr-2"></i>
         Împrumută Carte
       </a>
       <!-- end link -->
-     
+      <!-- link -->
+      <a href="/import_book" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+        <i class="fad fa-book text-xs mr-2"></i>
+        Returnare Carte
+      </a>
+      <!-- end link -->
       
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Utilizatori</p>
 
       <!-- link -->
       <a href="/view_members" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
-        <i class="fad fa-text text-xs mr-2"></i>
+        <i class="fad fa-user-friends text-xs mr-2"></i>
         Utilizatori
       </a>
       <!-- end link -->
+      {% if current_user.role == 'admin' %}
+      <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Administrare</p>
+      <a href="/add_librarian" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+          <i class="fad fa-user-plus text-xs mr-2"></i>
+          Adaugă bibliotecar
+      </a>
+      <a href="/view_users" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+          <i class="fad fa-users text-xs mr-2"></i>
+          Vezi utilizatori
+      </a>
 
-      <!-- link -->
-      <a href="/add_member" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+       <!-- link -->
+       <a href="/add_member" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
         <i class="fad fa-whistle text-xs mr-2"></i>
         Adăugare utilizator
       </a>
       <!-- end link -->
-      
+      {% endif %}
+
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Tranzacții </p>
 
       <!-- link -->
       <a href="/transactions" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
-        <i class="fad fa-holo text-xs mr-2"></i>
+        <i class="fas fa-exchange-alt text-xs mr-2"></i>
         Tranzacții
       </a>
       <!-- end link -->
+       <!-- Exemplu simplu de buton în navbar -->
+      {% if current_user.is_authenticated %}
+        <div class="mt-8 border-t border-gray-200 pt-4">
+          <a href="{{ url_for('logout') }}" class="flex items-center capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+            <i class="fad fa-sign-out text-xs mr-2 text-gray-500 hover:text-teal-600"></i>
+            <span class="text-gray-700 hover:text-teal-600">Deconectare</span>
+          </a>
+        </div>
+      {% endif %}
+
 
     </div>
     <!-- end sidebar content -->
