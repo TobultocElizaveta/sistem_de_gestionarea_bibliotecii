@@ -28,6 +28,9 @@ class User(db.Model, UserMixin):  # autentificare
     role = db.Column(db.String(20), nullable=False)  # 'admin' sau 'librarian'
     phone = db.Column(db.String(20))
 
+    def get_id(self):
+        return f"user-{self.id}"
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -41,8 +44,11 @@ class Member(db.Model, UserMixin):  # cititori
     phone = db.Column(db.String(9))
     address = db.Column(db.String(200))
     role = db.Column(db.String(20), nullable=False, default='student')  # 'student' sau 'teacher'
-    class_name = db.Column(db.String(50)) # doar pentru studenți
+    class_name = db.Column(db.String(50), index=True) # doar pentru studenți
     password_hash = db.Column(db.String(128)) 
+
+    def get_id(self):
+        return f"member-{self.id}"
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

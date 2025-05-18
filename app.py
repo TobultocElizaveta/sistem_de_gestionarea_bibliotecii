@@ -54,11 +54,15 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Încarcă din ambele tabele
-    user = User.query.get(int(user_id))
-    if not user:
-        user = Member.query.get(int(user_id))
-    return user
+    try:
+        prefix, uid = user_id.split('-')
+        uid = int(uid)
+        if prefix == 'user':
+            return User.query.get(uid)
+        elif prefix == 'member':
+            return Member.query.get(uid)
+    except Exception as e:
+        return None
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
@@ -210,6 +214,9 @@ def calculate_total_rent_current_month():
 @app.route('/init_genres')
 @login_required 
 def init_genres():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
     genres = ['Roman', 'Istorie', 'Geografie', 'Știință', 'Ficțiune', 'Poezie']
     for name in genres:
         if not Genre.query.filter_by(name=name).first():
@@ -220,6 +227,9 @@ def init_genres():
 @app.route('/add_genre', methods=['GET', 'POST'])
 @login_required
 def add_genre():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
     if request.method == 'POST':
         genre_name = request.form.get('genre_name')
         # Verifică dacă genul nu există deja
@@ -238,6 +248,10 @@ def add_genre():
 @app.route('/add_book', methods=['GET', 'POST'])
 @login_required
 def add_book():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     genres = Genre.query.all()
 
     if request.method == 'POST':
@@ -342,6 +356,10 @@ def book_list():
 @app.route('/view_members', methods=['GET', 'POST'])
 @login_required
 def member_list():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+
     page = request.args.get('page', 1, type=int)
     per_page = 15  
 
@@ -374,6 +392,10 @@ def member_list():
 @app.route('/edit_book/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_book(id):
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+
     book = Book.query.get(id)
     stock = Stock.query.get(book.id)
     genres = Genre.query.all()  
@@ -403,6 +425,10 @@ def edit_book(id):
 @app.route('/edit_member/<int:id>',methods=['GET','POST'])
 @login_required
 def edit_member(id):
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+
     member=Member.query.get(id)
     try:
         if request.method=="POST":
@@ -419,7 +445,9 @@ def edit_member(id):
 
 @app.route('/delete_member/<int:id>',methods=['GET','POST'])
 @login_required
+@role_required('admin')
 def delete_member(id):
+    
     try:
         member=Member.query.get(id)
         db.session.delete(member)
@@ -432,6 +460,10 @@ def delete_member(id):
 @app.route('/delete_book/<int:id>',methods=['GET','POST'])
 @login_required
 def delete_book(id):
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     try:
         book=Book.query.get(id)
         stock=Stock.query.get(book.id)
@@ -466,6 +498,10 @@ def view_book(id):
 @app.route('/view_member/<int:id>')
 @login_required
 def view_member(id):
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     member = Member.query.get(id)
     transaction = db.session.query(Transaction, Book).join(Book).filter(Transaction.member_id == member.id).all()
     dbt = calculate_dbt(member)
@@ -495,7 +531,9 @@ def calculate_dbt(member):
 
 @app.route('/issuebook', methods=['GET', 'POST'])
 @login_required
+@role_required('librarian')
 def issue_book():
+    
     if request.method == "POST":
         member_query = request.form['mk']
         book_query = request.form['bk']
@@ -523,6 +561,7 @@ def issue_book():
 @app.route('/issuebookconfirm', methods=['GET', 'POST'])
 @login_required
 def issue_book_confirm():
+
     if request.method == "POST":
         memberid = request.form['memberid']
         bookid = request.form['bookid']
@@ -584,6 +623,10 @@ def add_member():
 @app.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def view_borrowings():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     page = request.args.get('page', 1, type=int)
     per_page = 15
 
@@ -627,6 +670,7 @@ def view_borrowings():
 
 @app.route('/return_book/<int:book_id>', methods=['POST'])
 @login_required
+@role_required('librarian')
 def return_book(book_id):
     stock = Stock.query.filter_by(book_id=book_id).first()
     transaction = Transaction.query.filter_by(book_id=book_id, return_date=None).order_by(Transaction.issue_date.desc()).first()
@@ -643,6 +687,7 @@ def return_book(book_id):
 
 @app.route('/returnbookconfirm', methods=['POST'])
 @login_required
+@role_required('librarian')
 def return_book_confirm():
     if request.method == "POST":
         id = request.form["id"]
@@ -673,6 +718,10 @@ API_BASE_URL = "https://frappe.io/api/method/frappe-library"
 @app.route('/import_book', methods=['GET'])
 @login_required
 def imp():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     borrowed_books = db.session.query(Book, Member).\
         select_from(Book).\
         join(Stock, Stock.book_id == Book.id).\
@@ -685,6 +734,10 @@ def imp():
 @app.route('/save_all_books', methods=['POST'])
 @login_required
 def save_all_books():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     data = request.json
 
     for book_data in data:
@@ -719,6 +772,10 @@ def save_all_books():
 @app.route('/stockupdate/<int:id>',methods=['GET','POST'])
 @login_required
 def stock_update(id):
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
+    
     stock,book=db.session.query(Stock,Book).join(Book).filter(Stock.book_id == id).first()
     if request.method=="POST":
         qty=int(request.form['qty'])

@@ -103,7 +103,7 @@
         Cărți
       </a>
       <!-- end link -->
-
+      {% if current_user.role in ['admin', 'librarian'] %}
       <!-- link -->
       <a href="/add_book" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
         <i class="fad fa-book text-xs mr-2"></i>
@@ -138,6 +138,7 @@
         Utilizatori
       </a>
       <!-- end link -->
+      {% endif %}
       {% if current_user.role == 'admin' %}
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Administrare</p>
       <a href="/add_librarian" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
@@ -157,6 +158,9 @@
       <!-- end link -->
       {% endif %}
 
+      {% if current_user.role in ['admin', 'librarian'] %}
+
+      <!-- link -->
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Tranzacții </p>
 
       <!-- link -->
@@ -165,6 +169,8 @@
         Tranzacții
       </a>
       <!-- end link -->
+       {% endif %}
+      <!-- link -->
        <!-- Exemplu simplu de buton în navbar -->
       {% if current_user.is_authenticated %}
         <div class="mt-8 border-t border-gray-200 pt-4">
