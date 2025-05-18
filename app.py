@@ -8,7 +8,7 @@ from sqlalchemy import desc,or_
 from sqlalchemy.exc import IntegrityError,NoResultFound
 from functools import wraps
 from flask import abort
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user, login_url
 from flask import session
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -51,7 +51,6 @@ with app.app_context():
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'  # redirect to login page if not logged in
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -60,6 +59,14 @@ def load_user(user_id):
     if not user:
         user = Member.query.get(int(user_id))
     return user
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect(url_for('choose_role'))
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
 
 @app.route('/admin/dashboard')
 @role_required('admin')  # Doar adminii pot accesa
@@ -79,6 +86,10 @@ def member_dashboard():
         return redirect(url_for('index'))
     
     return render_template('member_dashboard.html', member=current_user)
+
+@app.route('/choose_role')
+def choose_role():
+    return render_template('choose_role.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -171,8 +182,10 @@ def view_users():
     return render_template('view_users.html', users=users)
 
 @app.route('/')
-@login_required
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for('choose_role'))
+    
     borrowed_books = db.session.query(Transaction).filter(Transaction.return_date == None).count()
     total_books = Book.query.count()
     total_members = Member.query.count()
@@ -544,26 +557,29 @@ def add_member():
         phone = request.form['phone']
         address = request.form['address']
         role = request.form.get('role', 'student')
+        class_name = request.form.get('class_name') if role == 'student' else None
         
         if Member.query.filter_by(email=email).first():
             flash('Emailul este deja folosit.', 'error')
             return redirect(url_for('add_member'))
-            
+
         member = Member(
             name=name,
             email=email,
             phone=phone,
             address=address,
-            role=role
+            role=role,
+            class_name=class_name
         )
         member.set_password(password)
-        
+
         db.session.add(member)
         db.session.commit()
         flash(f'{role.capitalize()} adăugat cu succes!', 'success')
         return redirect(url_for('member_list'))
     
     return render_template('add_member.html')
+
 
 @app.route('/transactions', methods=['GET', 'POST'])
 @login_required

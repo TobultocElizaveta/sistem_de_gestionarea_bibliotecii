@@ -41,7 +41,8 @@ class Member(db.Model, UserMixin):  # cititori
     phone = db.Column(db.String(9))
     address = db.Column(db.String(200))
     role = db.Column(db.String(20), nullable=False, default='student')  # 'student' sau 'teacher'
-    password_hash = db.Column(db.String(128))  # doar dacă vrei login pentru ei
+    class_name = db.Column(db.String(50)) # doar pentru studenți
+    password_hash = db.Column(db.String(128)) 
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

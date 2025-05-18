@@ -1,34 +1,174 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center mb-6">Autentificare Membru</h1>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autentificare Membru | Sistem Bibliotecă</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #38b2ac;
+            --primary-hover: #319795;
+            --error-color: #e53e3e;
+            --text-color: #2d3748;
+            --light-gray: #edf2f7;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-color);
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        
+        .logo {
+            width: 80px;
+            margin-bottom: 1.5rem;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            height: 50px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(56, 178, 172, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .alert {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .alert-error {
+            background-color: #fff5f5;
+            color: var(--error-color);
+            border-left: 4px solid var(--error-color);
+        }
+        
+        .input-icon {
+            position: relative;
+        }
+        
+        .input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #a0aec0;
+        }
+        
+        .footer-text {
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Bibliotecă" class="logo">
+        <h1>Autentificare</h1>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }} mb-4 p-3 rounded">
+                <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endwith %}
         
         <form method="POST" action="{{ url_for('member_login') }}">
-            <div class="mb-4">
-                <label for="email" class="block mb-2">Email:</label>
-                <input type="email" name="email" required
-                       class="w-full p-2 border rounded">
+            <div class="form-group input-icon">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" placeholder="Introduceți email" required>
             </div>
             
-            <div class="mb-4">
-                <label for="password" class="block mb-2">Parolă:</label>
-                <input type="password" name="password" required
-                       class="w-full p-2 border rounded">
+            <div class="form-group input-icon">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="Introduceți parola" required>
             </div>
             
-            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-                Autentificare
+            <button type="submit" class="btn">
+                <i class="fas fa-sign-in-alt"></i> Autentificare
             </button>
         </form>
+
+        <a href="{{ url_for('choose_role') }}" class="back-link"><i class="fas fa-arrow-left"></i> Înapoi la alegere rol</a>
+
+        <p class="footer-text">Sistem de gestionare a bibliotecii © {{ now.year }}</p>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

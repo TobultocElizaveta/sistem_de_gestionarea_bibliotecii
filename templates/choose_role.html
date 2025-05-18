@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Alege tipul de utilizator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="text-align: center; padding-top: 100px;">
+        <h2>Alege tipul de utilizator</h2>
+        <div style="margin-top: 40px;">
+            <a href="{{ url_for('login') }}" class="button">Lucrător bibliotecă</a>
+            <a href="{{ url_for('member_login') }}" class="button">Elev / Profesor</a>
+        </div>
+    </div>
+</body>
+</html>
