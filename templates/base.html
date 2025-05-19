@@ -69,14 +69,14 @@
 
 
 <!-- strat wrapper -->
-<div class="h-screen flex flex-row flex-wrap">
+<div class="h-screen flex flex-row flex-wrap" style="text-transform: none;">
   
     <!-- start sidebar -->
-  <div id="sideBar" class="relative flex flex-col flex-wrap bg-white border-r border-gray-300 p-6 flex-none w-64 md:-ml-64 md:fixed md:top-0 md:z-30 md:h-screen md:shadow-xl animated faster">
+  <div id="sideBar" class="relative flex flex-col flex-wrap bg-white border-r border-gray-300 p-6 flex-none w-64 md:-ml-64 md:fixed md:top-0 md:z-30 md:h-screen md:shadow-xl animated faster" style="text-transform: none;">
     
 
     <!-- sidebar content -->
-    <div class="flex flex-col">
+    <div class="flex flex-col" style="text-transform: none;">
 
       <!-- sidebar toggle -->
       <div class="text-right hidden md:block mb-4">
@@ -173,17 +173,17 @@
       {% endif %}
       {% if current_user.role == 'admin' %}
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Administrare</p>
-      <a href="/add_librarian" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+      <a href="/add_librarian" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500 >
           <i class="fad fa-user-plus text-xs mr-2"></i>
           Adaugă bibliotecar
       </a>
-      <a href="/view_users" class="mb-3 font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+      <a href="/view_users" class="mb-3 font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500 >
           <i class="fad fa-users text-xs mr-2"></i>
           Vezi lucrători
       </a>
 
        <!-- link -->
-       <a href="/add_member" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+       <a href="/add_member" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500 >
         <i class="fad fa-whistle text-xs mr-2"></i>
         Adăugare utilizator
       </a>
