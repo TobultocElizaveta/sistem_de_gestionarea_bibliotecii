@@ -2,14 +2,17 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-2xl font-bold mb-6">Bun venit, {{ member.name }}!</h1>
-    
+
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">Informații profil</h2>
-        <p><strong>Rol:</strong> {{ 'Elev' if member.role == 'student' else 'Profesor' }}</p>
-        <p><strong>Email:</strong> {{ member.email }}</p>
-        <p><strong>Telefon:</strong> {{ member.phone or 'Nespecificat' }}</p>
+        <p class="mb-2"><strong>Rol:</strong> {{ 'Elev' if member.role == 'student' else 'Profesor' }}</p>
+        <p class="mb-2"><strong>Email:</strong> {{ member.email }}</p>
+        <p class="mb-4"><strong>Telefon:</strong> {{ member.phone or 'Nespecificat' }}</p>
+        <a href="{{ url_for('change_member_password') }}" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+            Schimbă parola
+        </a>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold mb-4">Cărți împrumutate</h2>
@@ -17,32 +20,31 @@
         </div>
         
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="mt-4">Istoric cărți citite</h2>
+            <h2 class="text-xl font-semibold mb-4">Istoric cărți citite</h2>
             {% if read_books %}
-            <table class="table table-striped">
-                <thead>
+            <table class="w-full">
+                <thead class="bg-gray-100">
                     <tr>
-                        <th>Titlu</th>
-                        <th>Autor</th>
-                        <th>Data împrumut</th>
-                        <th>Data returnare</th>
+                        <th class="px-4 py-2 text-left">Titlu</th>
+                        <th class="px-4 py-2 text-left">Autor</th>
+                        <th class="px-4 py-2 text-left">Data împrumut</th>
+                        <th class="px-4 py-2 text-left">Data returnare</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for transaction, book in read_books %}
-                    <tr>
-                        <td>{{ book.title }}</td>
-                        <td>{{ book.author }}</td>
-                        <td>{{ transaction.issue_date.strftime('%d-%m-%Y') }}</td>
-                        <td>{{ transaction.return_date.strftime('%d-%m-%Y') }}</td>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-4 py-2">{{ book.title }}</td>
+                        <td class="px-4 py-2">{{ book.author }}</td>
+                        <td class="px-4 py-2">{{ transaction.issue_date.strftime('%d-%m-%Y') }}</td>
+                        <td class="px-4 py-2">{{ transaction.return_date.strftime('%d-%m-%Y') }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
             {% else %}
-                <p>Nu ai citit nicio carte încă.</p>
+                <p class="text-gray-600">Nu ai citit nicio carte încă.</p>
             {% endif %}
-
         </div>
     </div>
 </div>

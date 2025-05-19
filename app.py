@@ -100,6 +100,31 @@ def member_dashboard():
     
     return render_template('member_dashboard.html', member=current_user, read_books=read_books)
 
+@app.route('/member/change_password', methods=['GET', 'POST'])
+@login_required
+def change_member_password():
+    if not isinstance(current_user, Member):
+        flash('Acces permis doar membrilor!', 'error')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+
+        if not current_user.check_password(current_password):
+            flash('Parola curentă este incorectă.', 'error')
+        elif new_password != confirm_password:
+            flash('Parolele noi nu coincid.', 'error')
+        else:
+            current_user.set_password(new_password)
+            db.session.commit()
+            flash('Parola a fost schimbată cu succes.', 'success')
+            return redirect(url_for('member_dashboard'))
+
+    return render_template('member_change_password.html')
+
+
 @app.route('/choose_role')
 def choose_role():
     return render_template('choose_role.html')
