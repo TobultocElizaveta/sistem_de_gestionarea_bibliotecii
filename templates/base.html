@@ -127,6 +127,14 @@
         Cărți
       </a>
       <!-- end link -->
+      {% if current_user.is_authenticated and 'member' in current_user.get_id() %}
+      
+      <a href="{{ url_for('member_history') }}" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+        <i class="fad fa-book text-xs mr-2"></i>
+        Istoric lecturi
+      </a>
+      {% endif %}
+  
       {% if current_user.role in ['admin', 'librarian'] %}
       <!-- link -->
       <a href="/add_book" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">

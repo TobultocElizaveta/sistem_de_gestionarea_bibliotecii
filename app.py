@@ -240,6 +240,25 @@ def view_users():
     users = User.query.all()
     return render_template('view_users.html', users=users)
 
+@app.route('/member/history')
+@login_required
+def member_history():
+    if not isinstance(current_user, Member):
+        flash('Acces permis doar membrilor!', 'error')
+        return redirect(url_for('index'))
+    
+    # Obține tranzacțiile finalizate ale utilizatorului (cărți citite)
+    read_books = (
+        db.session.query(Transaction, Book)
+        .join(Book, Transaction.book_id == Book.id)
+        .filter(Transaction.member_id == current_user.id, Transaction.return_date.isnot(None))
+        .order_by(Transaction.return_date.desc())
+        .all()
+    )
+    
+    return render_template('member_history.html', member=current_user, read_books=read_books)
+
+
 @app.route('/')
 @login_required
 def index():
