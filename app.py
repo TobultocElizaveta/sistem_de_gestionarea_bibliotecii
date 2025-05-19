@@ -89,7 +89,16 @@ def member_dashboard():
         flash('Acces permis doar membrilor!', 'error')
         return redirect(url_for('index'))
     
-    return render_template('member_dashboard.html', member=current_user)
+    # Obține tranzacțiile finalizate ale utilizatorului (cărți citite)
+    read_books = (
+        db.session.query(Transaction, Book)
+        .join(Book, Transaction.book_id == Book.id)
+        .filter(Transaction.member_id == current_user.id, Transaction.return_date.isnot(None))
+        .order_by(Transaction.return_date.desc())
+        .all()
+    )
+    
+    return render_template('member_dashboard.html', member=current_user, read_books=read_books)
 
 @app.route('/choose_role')
 def choose_role():
@@ -172,7 +181,7 @@ def add_librarian():
             db.session.add(librarian)
             db.session.commit()
             flash('Bibliotecar adăugat cu succes!', 'success')
-            return redirect(url_for('view_users'))  # You'll need to create this route
+            return redirect(url_for('view_users')) 
         except Exception as e:
             db.session.rollback()
             flash(f'Eroare la adăugarea bibliotecarului: {str(e)}', 'error')

@@ -17,8 +17,32 @@
         </div>
         
         <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-xl font-semibold mb-4">Istoric</h2>
-            <!-- Aici poți afișa istoricul tranzacțiilor -->
+            <h2 class="mt-4">Istoric cărți citite</h2>
+            {% if read_books %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Titlu</th>
+                        <th>Autor</th>
+                        <th>Data împrumut</th>
+                        <th>Data returnare</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for transaction, book in read_books %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ transaction.issue_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ transaction.return_date.strftime('%d-%m-%Y') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>Nu ai citit nicio carte încă.</p>
+            {% endif %}
+
         </div>
     </div>
 </div>

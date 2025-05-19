@@ -1,20 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="bg-white p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Dashboard Bibliotecar</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Card 1: Gestiune Cărți -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h3 class="text-lg font-semibold mb-4">📚 Cărți</h3>
-            <a href="/view_books" class="text-blue-500 hover:underline">Vezi toate cărțile</a>
+<div class="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-6 text-center">➕ Adaugă Bibliotecar</h2>
+
+    <form method="POST" action="{{ url_for('add_librarian') }}" class="space-y-4">
+        <div>
+            <label for="username" class="block font-semibold mb-1">Nume utilizator</label>
+            <input type="text" name="username" id="username" required class="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
 
-        <!-- Card 2: Tranzacții -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h3 class="text-lg font-semibold mb-4">🔄 Tranzacții</h3>
-            <a href="/transactions" class="text-blue-500 hover:underline">Vezi tranzacții</a>
+        <div>
+            <label for="email" class="block font-semibold mb-1">Email</label>
+            <input type="email" name="email" id="email" required class="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-    </div>
+
+        <div>
+            <label for="password" class="block font-semibold mb-1">Parolă</label>
+            <input type="password" name="password" id="password" required class="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <div>
+            <label for="phone" class="block font-semibold mb-1">Telefon (opțional)</label>
+            <input type="text" name="phone" id="phone" class="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <div class="text-center pt-4">
+            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                Adaugă Bibliotecar
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}

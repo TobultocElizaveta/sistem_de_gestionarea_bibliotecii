@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Dashboard Bibliotecar</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Card 1: Gestiune Cărți -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-lg font-semibold mb-4">📚 Cărți</h3>
+            <a href="/view_books" class="text-blue-500 hover:underline">Vezi toate cărțile</a>
+        </div>
+
+        <!-- Card 2: Tranzacții -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-lg font-semibold mb-4">🔄 Tranzacții</h3>
+            <a href="/transactions" class="text-blue-500 hover:underline">Vezi tranzacții</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
