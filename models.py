@@ -27,6 +27,7 @@ class User(db.Model, UserMixin):  # autentificare
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'admin' sau 'librarian'
     phone = db.Column(db.String(20))
+    transactions = db.relationship('Transaction', backref='user', lazy=True)
 
     def get_id(self):
         return f"user-{self.id}"
@@ -61,8 +62,10 @@ class Transaction(db.Model):
     member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book.id'), nullable=False)
     issue_date = db.Column(db.DateTime, nullable=False)
+    due_date = db.Column(db.DateTime)
     return_date = db.Column(db.DateTime)
     rent_fee = db.Column(db.Float, default=2025)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class Stock(db.Model):
     id=db.Column(db.Integer,primary_key=True)

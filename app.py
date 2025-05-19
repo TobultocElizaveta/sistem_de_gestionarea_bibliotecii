@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from models import db,Book,Member,Transaction,Stock,Charges,Genre,User
 from datetime import datetime, timedelta
 import requests 
-from sqlalchemy import desc,or_
+from sqlalchemy import desc,or_, func, extract
 from sqlalchemy.exc import IntegrityError,NoResultFound
 from functools import wraps
 from flask import abort
@@ -550,6 +550,80 @@ def delete_book(id):
     except Exception as e:
         flash(f"Erroaee \n{e}",'error')
     return redirect('/view_members')
+
+@app.route('/rapoarte', methods=['GET', 'POST'])
+@login_required
+def rapoarte():
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Acces interzis.", "danger")
+        return redirect(url_for('index'))
+
+    # Perioada implicită: luna curentă
+    luna = request.form.get('luna')
+    anul = request.form.get('anul')
+
+    if not luna or not anul:
+        luna = datetime.today().month
+        anul = datetime.today().year
+    else:
+        luna = int(luna)
+        anul = int(anul)
+
+    # ---------------- Top 5 cărți împrumutate ----------------
+    top_books = db.session.query(
+        Book.title, func.count(Transaction.id).label('nr_imprumuturi')
+    ).join(Transaction).filter(
+        extract('month', Transaction.issue_date) == luna,
+        extract('year', Transaction.issue_date) == anul
+    ).group_by(Book.id).order_by(desc('nr_imprumuturi')).limit(5).all()
+
+    # ---------------- Activitatea bibliotecarilor ----------------
+    activitate = db.session.query(
+        User.username,
+        func.count(Transaction.id).label('total_imprumuturi')
+    ).join(Transaction).filter(
+        extract('month', Transaction.issue_date) == luna,
+        extract('year', Transaction.issue_date) == anul
+    ).group_by(User.id).all()
+
+    # ---------------- Întârzieri ----------------
+    intarzieri = db.session.query(
+        Member.name,
+        Book.title,
+        Transaction.issue_date,
+        Transaction.due_date,
+        Transaction.return_date
+    ).join(Member).join(Book).filter(
+        extract('month', Transaction.issue_date) == luna,
+        extract('year', Transaction.issue_date) == anul,
+        Transaction.return_date != None,
+        Transaction.return_date > Transaction.due_date
+    ).all()
+
+    # ---------------- Raport general ----------------
+    total_imprumuturi = db.session.query(func.count(Transaction.id)).filter(
+        extract('month', Transaction.issue_date) == luna,
+        extract('year', Transaction.issue_date) == anul
+    ).scalar()
+
+    total_returnate = db.session.query(func.count(Transaction.id)).filter(
+        extract('month', Transaction.return_date) == luna,
+        extract('year', Transaction.return_date) == anul
+    ).scalar()
+
+    total_intarzieri = len(intarzieri)
+
+    return render_template(
+        'rapoarte.html',
+        luna=luna,
+        anul=anul,
+        top_books=top_books,
+        activitate=activitate,
+        intarzieri=intarzieri,
+        total_imprumuturi=total_imprumuturi,
+        total_returnate=total_returnate,
+        total_intarzieri=total_intarzieri
+    )
 
 @app.route('/view_book/<int:id>')
 @login_required
