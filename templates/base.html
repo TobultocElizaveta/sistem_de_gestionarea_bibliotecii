@@ -85,16 +85,40 @@
         </button>
       </div>
       <!-- end sidebar toggle -->
-
       <p class="uppercase text-xs text-gray-600 mb-4 tracking-wider">acasă</p>
-
+        
+        {% if current_user.role in ['admin', 'librarian'] %}
       <!-- link -->
       <a href="/" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
         <i class="fad fa-chart-pie text-xs mr-2"></i>                
        Meniu
       </a>
       <!-- end link -->
+      {% endif %}
 
+      {% if current_user.is_authenticated and current_user.__class__.__name__ == 'Member' %}
+        
+        <a href="{{ url_for('member_dashboard') }}" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+          <i class="fad fa-chart-pie text-xs mr-2"></i>  
+          Profil
+        </a>
+      {% endif %}
+      {% if current_user.role == 'librarian' %}
+      <!-- link -->
+      <a href="/librarian_dashboard" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+        <i class="fad fa-chart-pie text-xs mr-2"></i>  
+        Profil
+      </a>
+      <!-- end link -->
+      {% endif %}
+      {% if current_user.role == 'admin' %}
+      <!-- link -->
+      <a href="/admin_dashboard" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+        <i class="fad fa-chart-pie text-xs mr-2"></i>  
+        Profil
+      </a>
+      <!-- end link -->
+      {% endif %}
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">CARTE</p>
 
       <!-- link -->

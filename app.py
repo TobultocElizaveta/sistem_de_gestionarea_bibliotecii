@@ -133,7 +133,7 @@ def login():
 def logout():
     logout_user()
     flash('Ai fost delogat cu succes.', 'success')
-    return redirect(url_for('login'))
+    return redirect(url_for('choose_role'))
 
 @app.route('/member/login', methods=['GET', 'POST'])
 def member_login():
@@ -195,9 +195,11 @@ def view_users():
     return render_template('view_users.html', users=users)
 
 @app.route('/')
+@login_required
 def index():
-    if not current_user.is_authenticated:
-        return redirect(url_for('choose_role'))
+    if current_user.role not in ['admin', 'librarian']:
+        flash("Nu ai permisiunea de a accesa această pagină.", "error")
+        return redirect(url_for('index'))
     
     borrowed_books = db.session.query(Transaction).filter(Transaction.return_date == None).count()
     total_books = Book.query.count()
