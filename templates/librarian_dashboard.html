@@ -1,20 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="bg-white p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Dashboard Bibliotecar</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Card 1: Gestiune Cărți -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h3 class="text-lg font-semibold mb-4">📚 Cărți</h3>
-            <a href="/view_books" class="text-blue-500 hover:underline">Vezi toate cărțile</a>
-        </div>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Bun venit, {{ current_user.name }}!</h1>
 
-        <!-- Card 2: Tranzacții -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h3 class="text-lg font-semibold mb-4">🔄 Tranzacții</h3>
-            <a href="/transactions" class="text-blue-500 hover:underline">Vezi tranzacții</a>
-        </div>
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Informații profil</h2>
+        <p class="mb-2"><strong>Rol:</strong> Bibliotecar</p>
+        <p class="mb-2"><strong>Email:</strong> {{ current_user.email }}</p>
+        <p class="mb-4"><strong>Telefon:</strong> {{ current_user.phone or 'Nespecificat' }}</p>
+        <a href="{{ url_for('change_librarian_password') }}" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+            Schimbă parola
+        </a>
     </div>
+
+    
 </div>
 {% endblock %}

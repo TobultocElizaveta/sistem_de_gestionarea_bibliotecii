@@ -82,6 +82,27 @@ def admin_dashboard():
 def librarian_dashboard():
     return render_template('librarian_dashboard.html')
 
+@app.route('/librarian/change_password', methods=['GET', 'POST'])
+@role_required('librarian')
+def change_librarian_password():
+    if request.method == 'POST':
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+
+        if not current_user.check_password(current_password):
+            flash('Parola actuală este incorectă.', 'error')
+        elif new_password != confirm_password:
+            flash('Parolele noi nu se potrivesc.', 'error')
+        else:
+            current_user.set_password(new_password)
+            db.session.commit()
+            flash('Parola a fost schimbată cu succes!', 'success')
+            return redirect(url_for('librarian_dashboard'))
+
+    return render_template('change_librarian_password.html')
+
+
 @app.route('/member/dashboard')
 @login_required
 def member_dashboard():
