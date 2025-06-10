@@ -20,7 +20,7 @@
 
         <table class="w-full bg-white border border-gray-200 border-collapse">
             <thead>
-                <tr class="bg-gray-100">
+                <tr class="bg-gray-100" >
                     <th class="py-2 px-4 text-left border border-gray-200">ID Carte</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Titlu</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Autor</th>
@@ -28,25 +28,31 @@
                     <th class="py-2 px-4 text-left border border-gray-200">ISBN</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Editură</th>
                     <th class="py-2 px-4 text-left border border-gray-200">Anul</th>
+                    {% if current_user.role == 'admin' %}
+
                     <th class="py-2 px-4 text-left border border-gray-200">Acțiune</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for book, stock in books.items %}
-                    <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}">
-                        <td class="py-2 px-4 border border-gray-200">{{ book.id }}</td>
+                    <tr class="{{ 'bg-gray-50' if loop.index is even else 'bg-white' }}" style="text-transform: none;">
+                        <td class="py-2 px-4 border border-gray-200" style="text-transform: none;">{{ book.id }}</td>
                         <td class="py-2 px-4 border border-gray-200">
                             <a href="/view_book/{{ book.id }}" class="text-blue" title="Afișează mai multe detalii">{{ book.title }}</a>
                         </td>
-                        <td class="py-2 px-4 border border-gray-200">{{ book.author }}</td>
+                        <td class="py-2 px-4 border border-gray-200" style="text-transform: none;">{{ book.author }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.genre.name }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.isbn }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.publisher }}</td>
                         <td class="py-2 px-4 border border-gray-200">{{ book.page }}</td>
-                        <td class="py-2 px-4 border border-gray-200">
+                        {% if current_user.role == 'admin' %}
+
+                        <td class="py-2 px-4 border border-gray-200" style="text-transform: none;">
                             <a class="ml-2 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600" href="edit_book/{{ book.id }}">Editează</a>
                             <a class="ml-2 px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" href="delete_book/{{ book.id }}" onclick="return confirm('Ești sigur?')">Șterge</a>
                         </td>
+                        {%endif %}
                     </tr>
                 {% endfor %}
             </tbody>

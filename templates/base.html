@@ -5,7 +5,11 @@
   <link rel="shortcut icon" href="./img/fav.png" type="image/x-icon">  
   <link rel="stylesheet" href="https://kit-pro.fontawesome.com/releases/v5.12.1/css/pro.min.css">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename= 'css/style.css') }}">  
+  {% if current_user.role in ['admin', 'librarian'] %}
   <title>Sistem de gestionarea bibliotecii</title>
+  {% else %}
+  <title>Biblioteca</title>
+  {% endif %}
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
@@ -15,8 +19,11 @@
     <!-- logo -->
     <div class="flex-none w-56 flex flex-row items-center">
       <img src="{{ url_for('static',filename= 'img/logo.png')}}" class="w-10 flex-none">
+      {% if current_user.role in ['admin', 'librarian'] %}
       <strong class="capitalize ml-1 flex-1">Sistem de gestionarea bibliotecii</strong>
-
+      {% else %}
+      <strong class="capitalize ml-1 flex-1">Biblioteca</strong>
+      {% endif %}
       <button id="sliderBtn" class="flex-none text-right text-gray-900 hidden md:block">
         <i class="fad fa-list-ul"></i>
       </button>
@@ -42,8 +49,8 @@
         <!-- user -->
         <div class="dropdown relative md:static">
 
-          <button class="menu-btn focus:outline-none focus:shadow-outline flex flex-wrap items-center">
-            <div class="w-8 h-8 overflow-hidden rounded-full">
+          <button class="menu-btn focus:outline-none focus:shadow-outline flex flex-wrap items-center" style="text-transform: none;">
+            <div class="w-8 h-8 overflow-hidden rounded-full" >
               <img class="w-full h-full object-cover" src="{{ url_for('static',filename='img/user.svg') }}" >
             </div> 
 
@@ -142,13 +149,18 @@
         Adăugare carte
       </a>
       <!-- end link -->
+       {%endif %}
+
+
+       {% if current_user.role == 'admin' %}
        <!-- link -->
       <a href="/add_genre" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
         <i class="fad fa-book text-xs mr-2"></i>
         Adăugare gen
       </a>
       <!-- end link -->
-
+      {% endif %}
+      {% if current_user.role == 'librarian' %}
       <!-- link -->
       <a href="/issuebook" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
         <i class="fad fa-book text-xs mr-2"></i>
@@ -161,6 +173,8 @@
         Returnare Carte
       </a>
       <!-- end link -->
+      {% endif %}
+      {% if current_user.role in ['admin', 'librarian'] %}
       
       <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Utilizatori</p>
 
@@ -170,25 +184,31 @@
         Utilizatori
       </a>
       <!-- end link -->
+       {%endif %}
+      {% if current_user.role == 'admin' %}
+
+       <!-- Vezi lucrători -->
+  <a href="/view_users" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+    <i class="fad fa-users text-xs mr-2"></i>
+    Vezi lucrători
+  </a>
       {% endif %}
       {% if current_user.role == 'admin' %}
-      <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Administrare</p>
-      <a href="/add_librarian" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500 >
-          <i class="fad fa-user-plus text-xs mr-2"></i>
-          Adaugă bibliotecar
-      </a>
-      <a href="/view_users" class="mb-3 font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500 >
-          <i class="fad fa-users text-xs mr-2"></i>
-          Vezi lucrători
-      </a>
+  <p class="uppercase text-xs text-gray-600 mb-4 mt-4 tracking-wider">Administrare</p>
 
-       <!-- link -->
-       <a href="/add_member" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500 >
-        <i class="fad fa-whistle text-xs mr-2"></i>
-        Adăugare utilizator
-      </a>
-      <!-- end link -->
-      {% endif %}
+  <!-- Adaugă bibliotecar -->
+  <a href="/add_librarian" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+    <i class="fad fa-user-plus text-xs mr-2"></i>
+    Adaugă bibliotecar
+  </a>
+
+  <!-- Adăugare utilizator -->
+  <a href="/add_member" class="mb-3 capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
+    <i class="fad fa-user-plus text-xs mr-2"></i>
+    Adăugare utilizator
+  </a>
+{% endif %}
+
 
       {% if current_user.role in ['admin', 'librarian'] %}
 
@@ -209,7 +229,7 @@
       <!-- link -->
        <!-- Exemplu simplu de buton în navbar -->
       {% if current_user.is_authenticated %}
-        <div class="mt-8 border-t border-gray-200 pt-4">
+        <div class="mt-8 border-t border-gray-200 pt-4" style="text-transform: none;">
           <a href="{{ url_for('logout') }}" class="flex items-center capitalize font-medium text-sm hover:text-teal-600 transition ease-in-out duration-500">
             <i class="fad fa-sign-out text-xs mr-2 text-gray-500 hover:text-teal-600"></i>
             <span class="text-gray-700 hover:text-teal-600">Deconectare</span>

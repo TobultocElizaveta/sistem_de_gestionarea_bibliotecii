@@ -23,8 +23,10 @@
             <table class="table-auto w-full">
                 <thead>
                     <tr>
+                        {% if current_user.role in ['admin', 'librarian'] %}
                         <th class="border px-4 py-2">ID Utilizator</th>
                         <th class="border px-4 py-2">Nume</th>
+                        {%endif %}
                         <th class="border px-4 py-2">Data Împrumutului</th>
                         <th class="border px-4 py-2">Data Returnării</th>
                     </tr>
@@ -32,6 +34,7 @@
                 <tbody>
                     {% for t in trans %}
                         <tr>
+                            {% if current_user.role in ['admin', 'librarian'] %}
                             <td class="py-2 px-4 border border-gray-200">
                                 <a href="/view_member/{{ t.member_id }}" title="Afișează mai multe detalii">
                                     {{ t.member_id }}
@@ -42,6 +45,7 @@
                                     {{ t.member_name }}
                                 </a>
                             </td>
+                            {%endif %}
                             <td class="border px-4 py-2">{{ t.issue_date.date() }}</td>
                             <td class="border px-4 py-2" style="text-transform: none;">{{ t.return_date.date() or 'Nereturnată încă' }}</td>
                         </tr>

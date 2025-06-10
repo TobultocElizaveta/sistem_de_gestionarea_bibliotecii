@@ -141,7 +141,7 @@ def change_member_password():
             current_user.set_password(new_password)
             db.session.commit()
             flash('Parola a fost schimbată cu succes.', 'success')
-            return redirect(url_for('member_dashboard'))
+            return redirect(url_for('book_list'))
 
     return render_template('member_change_password.html')
 
@@ -166,9 +166,9 @@ def login():
             
             # Redirect based on role
             if user.role == 'admin':
-                return redirect(url_for('admin_dashboard'))
+                return redirect(url_for('index'))
             else:
-                return redirect(url_for('librarian_dashboard'))
+                return redirect(url_for('index'))
         else:
             flash('Email sau parolă incorectă!', 'error')
     
@@ -194,7 +194,7 @@ def member_login():
         if member and member.check_password(password):
             login_user(member)
             flash('Autentificare reușită!', 'success')
-            return redirect(url_for('member_dashboard'))
+            return redirect(url_for('book_list'))
         else:
             flash('Email sau parolă incorectă!', 'error')
     
@@ -388,7 +388,7 @@ def add_book():
 @login_required
 def book_list():
     page = request.args.get('page', 1, type=int)
-    per_page = 15
+    per_page = 16
 
     genres = Genre.query.all()
 
@@ -721,7 +721,12 @@ def issue_book_confirm():
             flash("Cartea nu este disponibilă.", "error")
             return redirect('/issuebook')
 
-        new_transaction = Transaction(book_id=bookid, member_id=memberid, issue_date=datetime.today().date())
+        new_transaction = Transaction(
+            book_id=bookid,
+            member_id=memberid,
+            issue_date=datetime.today().date(),
+            user_id=current_user.id  # ✅ Adăugăm user_id
+        )
         print(new_transaction)
 
         stock.available_quantity -= 1
